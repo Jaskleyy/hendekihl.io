@@ -105,8 +105,7 @@ def save_score():
         return jsonify({"message": "Skor kaydedildi!"}), 200
     return jsonify({"message": "Kullanıcı bulunamadı!"}), 404
 
-if __name__ == '__main__':
-    # Debug modu açık, dosya değişimlerinde kendi kendine yenilenir
+# --- SUNUCU BAŞLATMA ---
 if __name__ == '__main__':
     # Render portu dinamik olarak atar, bulamazsa 5000 kullanır
     port = int(os.environ.get("PORT", 5000))
