@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO-ACCESS | Karbon Farkındalığı</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --green-700: #0f766e;
+            --green-500: #10b981;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --cream: #fff4e0;
+            --paper: rgba(255, 255, 255, 0.9);
+            --line: rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            color: var(--ink-700);
+            background: #eef2f3;
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        .video-background {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        #bgVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            transform: scale(1.18);
+            transform-origin: center center;
+            will-change: transform;
+            background: #081018;
+            filter: saturate(0.9) contrast(1.02) brightness(0.92) blur(var(--scroll-blur, 0px));
+            transition: filter 0.18s linear;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255, 246, 230, 0.30) 0%,
+                    rgba(255, 244, 224, 0.24) 52%,
+                    rgba(8, 16, 24, 0.20) 100%
+                );
+        }
+
+        .video-watermark-mask {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 320px;
+            height: 170px;
+            background: radial-gradient(
+                circle at 100% 100%,
+                rgba(8, 16, 24, 0.98) 0%,
+                rgba(8, 16, 24, 0.92) 38%,
+                rgba(8, 16, 24, 0.52) 66%,
+                rgba(8, 16, 24, 0) 100%
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .ambient-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background:
+                radial-gradient(900px 500px at 80% 20%, rgba(16, 185, 129, 0.08), transparent 65%),
+                radial-gradient(700px 380px at 15% 85%, rgba(255, 244, 224, 0.16), transparent 70%);
+            pointer-events: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(1180px, calc(100% - 28px));
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            color: var(--green-700);
+            text-decoration: none;
+            letter-spacing: -0.6px;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav-links a,
+        .nav-links span {
+            color: var(--ink-900);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.93rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links span:hover {
+            color: var(--green-700);
+        }
+
+        .btn-login {
+            color: #fff !important;
+            background: linear-gradient(135deg, #0f766e, #10b981);
+            padding: 10px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 24px rgba(16, 185, 129, 0.25);
+        }
+
+        .page {
+            width: 100%;
+            margin: 0;
+            padding-top: 0;
+            padding-bottom: 40px;
+        }
+
+        .hero {
+            width: 100%;
+            min-height: 100dvh;
+            padding: clamp(124px, 15vh, 170px) 14px 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+            background: transparent;
+        }
+
+        .hero-inner {
+            width: min(1180px, calc(100% - 14px));
+            margin: 0 auto;
+        }
+
+        .hero::after {
+            content: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 14px 0;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            font-size: 0.84rem;
+            text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero h1 {
+            margin: 0 0 16px 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.06;
+            letter-spacing: -1px;
+            color: #ffffff;
+            max-width: 920px;
+            text-shadow: 0 6px 24px rgba(0, 0, 0, 0.42);
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 820px;
+            font-size: clamp(1rem, 1.6vw, 1.2rem);
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.96);
+            text-shadow: 0 2px 14px rgba(0, 0, 0, 0.38);
+        }
+
+        .hero-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .hero-btn.solid {
+            color: #fff;
+            background: linear-gradient(135deg, #0f766e, #10b981);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.24);
+        }
+
+        .hero-btn.ghost {
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stats {
+            margin-top: 22px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px 28px;
+        }
+
+        .stat-card {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+        }
+
+        .stat-card .label {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.78);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-card .value {
+            margin: 6px 0 0 0;
+            color: #ffffff;
+            font-size: clamp(1.05rem, 2vw, 1.45rem);
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero-scroll {
+            margin-top: 26px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            color: rgba(255, 255, 255, 0.96);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.94rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .first-content {
+            margin-top: 24px;
+        }
+
+        .content-section {
+            margin-top: 18px;
+            width: min(1180px, calc(100% - 28px));
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: var(--paper);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.07);
+            padding: clamp(24px, 4vw, 40px);
+        }
+
+        .content-section h2 {
+            margin: 0 0 16px 0;
+            color: var(--ink-900);
+            font-family: "Space Grotesk", sans-serif;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(1.3rem, 2.4vw, 2rem);
+        }
+
+        .content-section > p {
+            margin: 0 0 14px 0;
+            line-height: 1.7;
+            font-size: 1.02rem;
+        }
+
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .highlight {
+            border-radius: 14px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            background: rgba(255, 255, 255, 0.84);
+            padding: 16px;
+        }
+
+        .highlight strong {
+            color: var(--ink-900);
+            font-size: 1.08rem;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .cards-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .topic-card {
+            background: rgba(255, 255, 255, 0.86);
+            border-radius: 14px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            padding: 16px;
+        }
+
+        .topic-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--ink-900);
+            font-size: 1.02rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topic-card p {
+            margin: 0;
+            line-height: 1.65;
+            font-size: 0.98rem;
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            border-radius: 16px;
+            border: 1px dashed rgba(15, 23, 42, 0.14);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.66);
+        }
+
+        .footer-note p {
+            margin: 0;
+            line-height: 1.65;
+        }
+
+        footer {
+            width: min(1180px, calc(100% - 28px));
+            margin: 18px auto 0;
+            padding: 18px 12px 28px;
+            text-align: center;
+            color: #475569;
+            font-size: 0.92rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 2000;
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 410px;
+            padding: 34px;
+            border: 1px solid var(--line);
+            box-shadow: 0 28px 40px rgba(15, 23, 42, 0.25);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            color: #94a3b8;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin: 0 0 16px 0;
+            color: var(--ink-900);
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid #dbe3ea;
+            border-radius: 12px;
+            padding: 13px;
+            margin: 8px 0;
+            font-size: 0.98rem;
+            font-family: "Manrope", sans-serif;
+            transition: border-color 0.2s ease;
+        }
+
+        select {
+            width: 100%;
+            border: 1px solid #dbe3ea;
+            border-radius: 12px;
+            padding: 13px;
+            margin: 8px 0;
+            font-size: 0.98rem;
+            font-family: "Manrope", sans-serif;
+            transition: border-color 0.2s ease;
+            background: #ffffff;
+            color: var(--ink-900);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--green-500);
+        }
+
+        .btn-submit {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 13px;
+            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            font-family: "Manrope", sans-serif;
+            color: #fff;
+            background: linear-gradient(135deg, #0f766e, #10b981);
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        @media (max-width: 980px) {
+            .stats {
+                gap: 10px 18px;
+            }
+
+            .highlight-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                top: 8px;
+                border-radius: 12px;
+                padding: 10px 14px;
+            }
+
+            .nav-links {
+                gap: 10px;
+            }
+
+            .nav-links a,
+            .nav-links span {
+                font-size: 0.85rem;
+            }
+
+            .hero {
+                min-height: 100dvh;
+                padding-top: 106px;
+                padding-bottom: 44px;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            #bgVideo {
+                object-fit: cover;
+                transform: scale(1.22);
+            }
+
+            .video-watermark-mask {
+                width: 230px;
+                height: 128px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-background">
+        <video autoplay muted loop playsinline id="bgVideo">
+            <source src="/static/kutupayi.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+        <div class="video-watermark-mask" aria-hidden="true"></div>
+    </div>
+    <div class="ambient-layer"></div>
+
+    <nav class="navbar">
+        <a href="#" class="logo"><i class="fas fa-leaf"></i> ECO-ACCESS</a>
+        <div class="nav-links">
+            <a href="#veriler">Bugünün Verileri</a>
+            <a href="#etkiler">Etkiler</a>
+            <a href="#saglik-toplum">Sağlık & Toplum</a>
+            <a href="#ayak-izi">Karbon Ayak İzi</a>
+            <span onclick="openModal('register')">Kayıt Ol</span>
+            <span onclick="openModal('login')" class="btn-login">Giriş Yap</span>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <div class="hero-inner">
+                <p class="eyebrow"><i class="fa-solid fa-globe"></i> Küresel İklim Gündemi</p>
+                <h1>Karbon salınımı yükseliyor. Etkileri ölçmek, anlamak ve azaltmak artık bir tercih değil zorunluluk.</h1>
+                <p>2023–2024 dönemindeki yüksek CO₂ birikimi, doğal karbon yutaklarının zorlandığını ve iklim baskısının hızlandığını gösteriyor. ECO-ACCESS, bu değişimi herkes için anlaşılır hale getirip bireysel aksiyonu güçlendirmek için tasarlandı.</p>
+                <div class="hero-actions">
+                    <a href="#veriler" class="hero-btn solid"><i class="fa-solid fa-chart-line"></i> Verileri İncele</a>
+                    <a href="#ayak-izi" class="hero-btn ghost"><i class="fa-solid fa-shoe-prints"></i> Karbon Ayak İzi Nedir?</a>
+                </div>
+                <div class="stats">
+                    <article class="stat-card">
+                        <p class="label">Atmosferde CO₂ Seviyesi</p>
+                        <p class="value">2024: Rekor Düzey</p>
+                    </article>
+                    <article class="stat-card">
+                        <p class="label">Küresel Yıllık Emisyon</p>
+                        <p class="value">≈ 38,1 Milyar Ton</p>
+                    </article>
+                    <article class="stat-card">
+                        <p class="label">Trend</p>
+                        <p class="value">Azalmıyor, Artış Baskın</p>
+                    </article>
+                </div>
+                <a href="#veriler" class="hero-scroll"><i class="fa-solid fa-arrow-down"></i> Aşağı kaydır ve detayları incele</a>
+            </div>
+        </section>
+
+        <section id="veriler" class="content-section first-content">
+            <h2><i class="fa-solid fa-database" style="color: var(--green-700);"></i> 1) Karbon Salınımı ve Küresel Artışı: Bugünün Verileri</h2>
+            <p>Karbon salınımı, özellikle fosil yakıt kullanımıyla atmosfere bırakılan sera gazlarını ifade eder. Bu gazlar ısıyı atmosferde tutar ve küresel sıcaklıkları yükseltir. 2023–2024 döneminde ölçülen CO₂ birikimi, bu artışın hız kesmediğini açık biçimde ortaya koydu.</p>
+            <p>Mevcut göstergeler, doğal sistemlerin (ormanlar ve okyanuslar gibi) karbonu emme kapasitesinin baskı altında olduğunu ve insan kaynaklı emisyonların baskın etken olmaya devam ettiğini gösteriyor.</p>
+            <div class="highlight-grid">
+                <article class="highlight">
+                    <strong>CO₂ Birikimi Rekor Seviyede</strong>
+                    <p>2024 verileri, atmosferdeki sera gazı stokunun tarihi zirvelere çıktığını ve birikimin hızlandığını işaret ediyor.</p>
+                </article>
+                <article class="highlight">
+                    <strong>38,1 Milyar Ton/Yıl Emisyon</strong>
+                    <p>Dünya genelinde yıllık emisyon seviyesi yaklaşık 38,1 milyar ton civarında seyrediyor ve aşağı yönlü kırılım henüz net değil.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="etkiler" class="content-section">
+            <h2><i class="fa-solid fa-temperature-high" style="color: #f97316;"></i> 2) Çevresel Etkiler: İklim Değişikliği ve Doğal Sistemler</h2>
+            <div class="cards-3">
+                <article class="topic-card">
+                    <h3><i class="fa-solid fa-fire-flame-curved" style="color: #ef4444;"></i> Isınma & Aşırı Hava</h3>
+                    <p>Artan karbon salınımı, sıcak hava dalgalarını, orman yangınlarını ve kuraklık olaylarını daha sık ve daha yıkıcı hale getiriyor. Bu durum yaşam alanlarına, altyapıya ve ekonomik üretime doğrudan zarar veriyor.</p>
+                </article>
+                <article class="topic-card">
+                    <h3><i class="fa-solid fa-icicles" style="color: #38bdf8;"></i> Kutup Buzullarında Erime</h3>
+                    <p>Kutup bölgelerindeki hızlanan erime, deniz seviyesini yükselterek kıyı şehirlerini ve adaları daha kırılgan hale getiriyor. Uzun vadede bu süreç, yerleşim ve ekosistem güvenliğini tehdit ediyor.</p>
+                </article>
+                <article class="topic-card">
+                    <h3><i class="fa-solid fa-tree" style="color: #22c55e;"></i> Doğal Yutakların Stresi</h3>
+                    <p>Ormanlar ve okyanuslar karbonu emmeye devam etse de mevcut yük karşısında kapasiteleri zayıflıyor. Bu da atmosferde daha fazla sera gazı birikmesine ve ısınmanın hızlanmasına yol açıyor.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="saglik-toplum" class="content-section">
+            <h2><i class="fa-solid fa-briefcase-medical" style="color: #2563eb;"></i> 3) İnsan Sağlığı ve Sosyal Etkiler</h2>
+            <div class="cards-3">
+                <article class="topic-card">
+                    <h3><i class="fa-solid fa-lungs" style="color: #2563eb;"></i> Hava Kalitesi ve Sağlık</h3>
+                    <p>Karbon salınımındaki artış, hava kirliliği yükünü de yükselterek solunum yolu hastalıkları, astım atakları ve kardiyovasküler riskleri artırabilir.</p>
+                </article>
+                <article class="topic-card">
+                    <h3><i class="fa-solid fa-wheat-awn" style="color: #d97706;"></i> Ekonomi & Yaşam Standartları</h3>
+                    <p>Kuraklık, aşırı yağış ve sıcaklık dalgalanmaları tarımı, enerji sistemlerini ve altyapıyı zorlar. Bunun sonucunda üretim kaybı, maliyet artışı ve bölgesel göç baskısı görülebilir.</p>
+                </article>
+                <article class="topic-card">
+                    <h3><i class="fa-solid fa-scale-balanced" style="color: #7c3aed;"></i> İklim Adaleti</h3>
+                    <p>İklim etkileri her toplumu eşit vurmaz; düşük gelirli bölgeler ve kırılgan gruplar aynı krizden daha ağır etkilenir. Bu nedenle çözüm politikaları adalet boyutunu içermelidir.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="ayak-izi" class="content-section">
+            <h2><i class="fa-solid fa-shoe-prints" style="color: var(--green-700);"></i> 4) Karbon Ayak İzi: Neden Önemli ve Bize Düşen Rol</h2>
+            <p><strong>Karbon ayak izi</strong>, bireylerin, ürünlerin ve kurumların doğrudan veya dolaylı olarak atmosfere saldığı toplam sera gazı miktarını ifade eder. Ulaşım alışkanlıkları, enerji tüketimi, beslenme tercihleri ve satın alma davranışları bu izi belirleyen temel faktörlerdir.</p>
+            <div class="highlight-grid">
+                <article class="highlight">
+                    <strong>İklim Değişikliğini Yavaşlatmak</strong>
+                    <p>Ayak izini azaltmak, atmosferdeki sera gazı birikimini düşürerek uzun vadeli ısınma baskısını hafifletir.</p>
+                </article>
+                <article class="highlight">
+                    <strong>Daha Sağlıklı ve Ekonomik Bir Gelecek</strong>
+                    <p>Enerji verimliliği, sürdürülebilir ürün tercihleri ve temiz ulaşım seçimleri hem yaşam kalitesini hem ekonomik dayanıklılığı güçlendirir.</p>
+                </article>
+            </div>
+            <div class="footer-note">
+                <p>Basit davranış değişiklikleri bile güçlü etki oluşturabilir: daha az fosil yakıt tüketimi, enerji tasarrufu, sürdürülebilir ürün seçimi ve toplu taşıma kullanımı toplam emisyonu ciddi ölçüde azaltabilir. Toplumun küçük bir bölümündeki davranış dönüşümü bile küresel CO₂ seviyelerinde anlamlı azalma yaratabilir.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 ECO-ACCESS Project | Erasmus+ Innovation Hub</p>
+        </footer>
+    </main>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <i class="fas fa-times close-modal" onclick="closeModal()"></i>
+            <h2 id="modalTitle">Giriş Yap</h2>
+            <input type="text" id="username" placeholder="Kullanıcı Adı">
+            <input type="password" id="password" placeholder="Şifre">
+            <div id="registerFields" style="display:none;">
+                <input type="text" id="fullName" placeholder="İsim Soyisim">
+                <input type="date" id="birthDate" placeholder="Doğum Tarihi">
+                <select id="educationLevel">
+                    <option value="">Okul Düzeyi Seç</option>
+                    <option value="ilkokul">İlkokul</option>
+                    <option value="ortaokul">Ortaokul</option>
+                    <option value="lise">Lise</option>
+                    <option value="lisans">Lisans</option>
+                    <option value="yuksek_lisans">Yüksek Lisans</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="submitAuth()">Onayla</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = "login";
+        const bgVideo = document.getElementById("bgVideo");
+
+        function smoothScrollTo(targetY, duration = 1200) {
+            const startY = window.scrollY;
+            const distance = targetY - startY;
+            const startTime = performance.now();
+
+            function easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
+
+            function step(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeOutCubic(progress);
+                window.scrollTo(0, startY + distance * eased);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (event) {
+                const href = this.getAttribute("href");
+                if (!href) return;
+                event.preventDefault();
+                if (href === "#") {
+                    smoothScrollTo(0, 1200);
+                    return;
+                }
+                const target = document.querySelector(href);
+                if (!target) return;
+                const targetY = target.getBoundingClientRect().top + window.scrollY - 8;
+                smoothScrollTo(targetY, 1250);
+            });
+        });
+
+        let ticking = false;
+        function updateScrollBlur() {
+            if (!bgVideo) {
+                ticking = false;
+                return;
+            }
+            const y = window.scrollY;
+            const maxRange = Math.min(window.innerHeight * 0.9, 820);
+            const ratio = Math.min(y / maxRange, 1);
+            const blur = (ratio * 1.6).toFixed(2);
+            bgVideo.style.setProperty("--scroll-blur", `${blur}px`);
+            ticking = false;
+        }
+
+        window.addEventListener("scroll", function () {
+            if (!ticking) {
+                requestAnimationFrame(updateScrollBlur);
+                ticking = true;
+            }
+        }, { passive: true });
+        updateScrollBlur();
+
+        function openModal(mode) {
+            currentMode = mode;
+            const isRegister = mode === "register";
+            document.getElementById("modalTitle").innerText = isRegister ? "Yeni Kayıt" : "Giriş Yap";
+            const registerFields = document.getElementById("registerFields");
+            if (registerFields) registerFields.style.display = isRegister ? "block" : "none";
+            document.getElementById("authModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("authModal").style.display = "none";
+        }
+
+        window.addEventListener("click", function (event) {
+            const modal = document.getElementById("authModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        async function submitAuth() {
+            const u = document.getElementById("username").value.trim();
+            const p = document.getElementById("password").value.trim();
+
+            if (!u || !p) {
+                alert("Kullanıcı adı ve şifre gerekli.");
+                return;
+            }
+
+            const endpoint = currentMode === "login" ? "/login" : "/register";
+            const payload = { username: u, password: p };
+
+            if (currentMode === "register") {
+                const fullName = document.getElementById("fullName")?.value.trim();
+                const birthDate = document.getElementById("birthDate")?.value;
+                const educationLevel = document.getElementById("educationLevel")?.value;
+
+                if (!fullName || !birthDate || !educationLevel) {
+                    alert("Kayıt için isim soyisim, doğum tarihi ve okul düzeyi gerekli.");
+                    return;
+                }
+
+                payload.full_name = fullName;
+                payload.birth_date = birthDate;
+                payload.education_level = educationLevel;
+            }
+            const resp = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const res = await resp.json();
+            if (resp.ok) {
+                if (currentMode === "login") {
+                    localStorage.setItem("eco_username", res.username);
+                    window.location.href = "/dashboard";
+                } else {
+                    alert("Kayıt başarılı. Giriş yapabilirsin.");
+                    openModal("login");
+                }
+            } else {
+                alert(res.message || "Bir hata oluştu.");
+            }
+        }
+    </script>
+</body>
+</html>
