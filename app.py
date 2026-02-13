@@ -107,4 +107,8 @@ def save_score():
 
 if __name__ == '__main__':
     # Debug modu açık, dosya değişimlerinde kendi kendine yenilenir
-    app.run(debug=True, port=5000)
+if __name__ == '__main__':
+    # Render portu dinamik olarak atar, bulamazsa 5000 kullanır
+    port = int(os.environ.get("PORT", 5000))
+    # host='0.0.0.0' dış dünyaya açılmak için kritiktir
+    app.run(host='0.0.0.0', port=port)
