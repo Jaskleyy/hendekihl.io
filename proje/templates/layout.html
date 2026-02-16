@@ -4,14 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ECO-ACCESS | {% block title %}Panel{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #064e3b;       /* Derin Zümrüt */
-            --accent: #d97706;        /* Altın */
-            --glass-green: rgba(6, 78, 59, 0.85); 
-            --text-dark: #111827;
+            --primary: #0f172a;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --surface: #ffffff;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
             --sidebar-width: 300px;
         }
 
@@ -19,175 +27,194 @@
 
         body {
             margin: 0;
-            font-family: 'Manrope', sans-serif;
-            background-color: #f3f4f6;
-            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
             overflow-x: hidden;
         }
 
-        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 800; }
 
-        /* --- 1. TOP BAR (GÜNCELLENDİ) --- */
+        /* --- TOP BAR --- */
         .top-bar {
-            position: fixed; top: 0; left: 0; right: 0; height: 80px;
+            position: fixed; top: 0; left: 0; right: 0; height: 72px;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 40px; z-index: 1000;
-            background: transparent; /* Başlangıçta şeffaf */
+            padding: 0 32px; z-index: 1000;
+            background: transparent;
             border-bottom: 1px solid transparent;
-            transition: all 0.4s ease; /* Yumuşak geçiş efekti */
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Kaydırınca aktif olan stil */
         .top-bar.scrolled {
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
         }
 
-        /* Logo ve Menü Butonu Renkleri - Şeffafken Beyaz, Kaydırınca Yeşil */
         .menu-btn, .logo-text {
-            color: white; 
-            transition: color 0.4s;
+            color: white;
+            transition: color 0.35s;
         }
 
-        .top-bar.scrolled .menu-btn, 
+        .top-bar.scrolled .menu-btn,
         .top-bar.scrolled .logo-text {
             color: var(--primary);
         }
 
-        /* --- 2. SIDEBAR --- */
+        /* --- SIDEBAR --- */
         .sidebar-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
             z-index: 1001; opacity: 0; pointer-events: none; transition: 0.3s;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
         .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
         .sidebar {
-            position: fixed; top: 0; left: -340px; 
+            position: fixed; top: 0; left: -340px;
             width: var(--sidebar-width); height: 100vh;
-            background: linear-gradient(180deg, #022c22 0%, #064e3b 100%);
-            z-index: 1002; padding: 40px 30px;
-            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            color: white; box-shadow: 10px 0 40px rgba(0,0,0,0.4);
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            z-index: 1002; padding: 36px 24px;
+            transition: 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+            color: white; box-shadow: 8px 0 32px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
         }
         .sidebar.active { left: 0; }
 
-        .brand { font-size: 1.8rem; color: #d1fae5; margin-bottom: 50px; display: flex; align-items: center; gap: 10px; }
-        
-        .nav-item {
-            display: flex; align-items: center; gap: 15px;
-            padding: 16px 20px; color: rgba(255,255,255,0.7);
-            text-decoration: none; border-radius: 12px; margin-bottom: 5px;
-            font-weight: 500; transition: 0.3s;
+        .brand {
+            font-size: 1.5rem; font-weight: 800; color: #f1f5f9;
+            margin-bottom: 40px; display: flex; align-items: center; gap: 12px;
+            letter-spacing: -0.02em;
         }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
-        .nav-item.active { box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
+        .brand i {
+            color: var(--accent-light);
+            font-size: 1.3rem;
+        }
 
-        /* --- 3. UI ELEMENTS --- */
+        .nav-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 18px; color: rgba(255,255,255,0.55);
+            text-decoration: none; border-radius: 12px; margin-bottom: 4px;
+            font-weight: 500; font-size: 0.95rem; transition: all 0.2s ease;
+            position: relative;
+        }
+        .nav-item i { width: 20px; text-align: center; font-size: 1rem; }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+        }
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        /* --- UI ELEMENTS --- */
         .top-left {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             min-width: 0;
         }
         .menu-btn {
             background: transparent; border: none;
-            font-size: 1.5rem; cursor: pointer; padding: 10px; 
-            border-radius: 50%; transition: 0.3s;
+            font-size: 1.3rem; cursor: pointer; padding: 10px;
+            border-radius: 10px; transition: 0.2s;
         }
         .menu-btn:hover { background: rgba(255,255,255,0.1); }
-        .top-bar.scrolled .menu-btn:hover { background: rgba(0,0,0,0.05); }
+        .top-bar.scrolled .menu-btn:hover { background: rgba(0,0,0,0.04); }
         .logo-text {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1.3rem;
-            letter-spacing: 1px;
-            white-space: nowrap;
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
         }
 
         .user-chip {
-            display: flex; align-items: center; gap: 15px;
-            background: rgba(255, 255, 255, 0.2); /* Şeffafken daha hafif görünümlü */
-            padding: 6px 6px 6px 20px;
-            border-radius: 50px; cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: 0.3s;
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 5px 5px 5px 16px;
+            border-radius: 999px; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.25s ease;
             color: white;
         }
         .top-bar.scrolled .user-chip {
-            background: white;
-            color: var(--text-dark);
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
-        .user-chip:hover { transform: translateY(-2px); }
+        .user-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .user-meta {
             text-align: right;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         .user-title {
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             max-width: 180px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .user-subtitle {
-            font-size: 0.75rem;
-            opacity: 0.8;
+            font-size: 0.72rem;
+            opacity: 0.65;
+            font-weight: 500;
         }
         .user-avatar {
-            width: 44px; height: 44px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             background: var(--accent); background-size: cover; background-position: center;
+            flex-shrink: 0;
         }
 
         .main-content { width: 100%; min-height: 100vh; }
-        .main-content.with-offset { padding-top: 120px; }
-        body.page-settings .main-content.with-offset { padding-top: 136px; }
-        body.page-calc .main-content.with-offset { padding-top: 124px; }
+        .main-content.with-offset { padding-top: 112px; }
+        body.page-settings .main-content.with-offset { padding-top: 128px; }
+        body.page-calc .main-content.with-offset { padding-top: 116px; }
 
         /* --- AI CHAT STYLES --- */
         #aiLauncher {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 64px; height: 64px;
-            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
-            border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(6, 78, 59, 0.4);
+            position: fixed; bottom: 28px; right: 28px;
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
             cursor: pointer; z-index: 9999;
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
         }
-        #aiLauncher i { color: white; font-size: 1.8rem; }
+        #aiLauncher:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.45);
+        }
+        #aiLauncher i { color: white; font-size: 1.6rem; }
 
         #aiWindow {
-            position: fixed; bottom: 110px; right: 30px;
-            width: 380px; height: 600px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: fixed; bottom: 104px; right: 28px;
+            width: 380px; height: 580px;
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border);
             z-index: 9999;
             display: none; flex-direction: column; overflow: hidden;
-            animation: openChat 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            animation: openChat 0.4s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         .notification-dot {
             position: absolute;
-            top: 9px;
+            top: 8px;
             right: 8px;
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #ef4444;
-            border: 2px solid #ecfdf5;
+            background: var(--danger);
+            border: 2px solid var(--accent);
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
             color: #fff;
             padding: 16px 18px;
             display: flex;
@@ -199,28 +226,29 @@
             flex: 1;
             padding: 14px;
             overflow-y: auto;
-            background: #f8fafc;
+            background: var(--bg);
         }
 
         .msg {
             margin-bottom: 10px;
-            padding: 11px 13px;
-            border-radius: 12px;
+            padding: 11px 14px;
+            border-radius: 14px;
             max-width: 85%;
-            line-height: 1.45;
-            font-size: 0.92rem;
+            line-height: 1.5;
+            font-size: 0.9rem;
         }
 
         .msg-ai {
-            background: #ffffff;
-            color: #1f2937;
-            border: 1px solid #e5e7eb;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             border-top-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
 
         .msg-user {
             margin-left: auto;
-            background: #064e3b;
+            background: var(--accent);
             color: #ffffff;
             border-top-right-radius: 4px;
         }
@@ -229,23 +257,26 @@
             display: flex;
             gap: 8px;
             padding: 12px;
-            border-top: 1px solid #e5e7eb;
-            background: #ffffff;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
         }
 
         .chat-input {
             flex: 1;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 11px 12px;
+            padding: 11px 14px;
             font-family: inherit;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
+            background: var(--bg);
+            transition: all 0.2s;
         }
 
         .chat-input:focus {
             outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: var(--surface);
         }
 
         .send-btn {
@@ -253,15 +284,17 @@
             height: 42px;
             border: none;
             border-radius: 10px;
-            background: #064e3b;
+            background: var(--accent);
             color: #ffffff;
             cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
         }
 
-        .send-btn:hover { background: #043f30; }
+        .send-btn:hover { background: #4f46e5; }
 
         @keyframes openChat {
-            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
@@ -273,93 +306,93 @@
         @media (max-width: 1100px) {
             :root { --sidebar-width: min(320px, 86vw); }
             .top-bar {
-                height: 72px;
+                height: 68px;
                 padding: 0 18px;
             }
-            .main-content.with-offset { padding-top: 104px; }
-            body.page-settings .main-content.with-offset { padding-top: 112px; }
-            body.page-calc .main-content.with-offset { padding-top: 108px; }
+            .main-content.with-offset { padding-top: 100px; }
+            body.page-settings .main-content.with-offset { padding-top: 108px; }
+            body.page-calc .main-content.with-offset { padding-top: 104px; }
             #aiLauncher {
-                width: 58px;
-                height: 58px;
+                width: 54px;
+                height: 54px;
                 right: 18px;
                 bottom: 18px;
+                border-radius: 16px;
             }
-            #aiLauncher i { font-size: 1.5rem; }
+            #aiLauncher i { font-size: 1.4rem; }
             #aiWindow {
                 right: 16px;
-                bottom: 88px;
-                width: min(420px, calc(100vw - 32px));
-                height: min(72vh, 560px);
+                bottom: 84px;
+                width: min(400px, calc(100vw - 32px));
+                height: min(70vh, 540px);
             }
         }
 
         @media (max-width: 768px) {
             .top-bar {
-                height: 66px;
-                padding: 0 12px;
+                height: 62px;
+                padding: 0 14px;
             }
             .top-left { gap: 10px; }
             .menu-btn {
-                font-size: 1.2rem;
+                font-size: 1.15rem;
                 padding: 8px;
             }
             .logo-text {
                 font-size: 1rem;
-                letter-spacing: 0.4px;
             }
             .user-chip {
                 gap: 8px;
-                padding: 4px 5px 4px 10px;
-                border-radius: 999px;
+                padding: 4px 4px 4px 12px;
             }
             .user-title {
                 max-width: 96px;
                 font-size: 0.82rem;
             }
-            .user-subtitle { font-size: 0.68rem; }
+            .user-subtitle { font-size: 0.66rem; }
             .user-avatar {
-                width: 36px;
-                height: 36px;
+                width: 34px;
+                height: 34px;
             }
-            .main-content.with-offset { padding-top: 90px; }
-            body.page-settings .main-content.with-offset { padding-top: 98px; }
-            body.page-calc .main-content.with-offset { padding-top: 94px; }
+            .main-content.with-offset { padding-top: 86px; }
+            body.page-settings .main-content.with-offset { padding-top: 94px; }
+            body.page-calc .main-content.with-offset { padding-top: 90px; }
             .sidebar {
                 left: calc(var(--sidebar-width) * -1 - 20px);
-                padding: 20px 18px;
+                padding: 20px 16px;
             }
             .brand {
-                font-size: 1.35rem;
-                margin-bottom: 26px;
+                font-size: 1.3rem;
+                margin-bottom: 24px;
             }
             .nav-item {
-                padding: 13px 14px;
+                padding: 12px 14px;
                 gap: 12px;
-                font-size: 0.95rem;
+                font-size: 0.93rem;
             }
             #aiLauncher {
-                width: 54px;
-                height: 54px;
-                right: 12px;
-                bottom: 12px;
+                width: 50px;
+                height: 50px;
+                right: 14px;
+                bottom: 14px;
+                border-radius: 14px;
             }
             #aiWindow {
-                right: 9px;
-                bottom: 74px;
-                width: calc(100vw - 18px);
-                height: min(70vh, 520px);
+                right: 10px;
+                bottom: 72px;
+                width: calc(100vw - 20px);
+                height: min(68vh, 500px);
                 border-radius: 16px;
             }
             .chat-header { padding: 12px 14px; }
             .chat-body { padding: 10px; }
-            .chat-input-area { padding: 9px; }
+            .chat-input-area { padding: 10px; }
         }
 
         @media (max-width: 520px) {
             .user-subtitle { display: none; }
             .user-title { max-width: 72px; }
-            .logo-text { font-size: 0.94rem; }
+            .logo-text { font-size: 0.92rem; }
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -392,8 +425,8 @@
         <a href="/dashboard/edu" class="nav-item {% if page == 'edu' %}active{% endif %}"><i class="fas fa-graduation-cap"></i> Akademi</a>
         <a href="/dashboard/settings" class="nav-item {% if page == 'settings' %}active{% endif %}"><i class="fas fa-cog"></i> Ayarlar</a>
         <a id="navModeration" href="/dashboard/moderation" class="nav-item {% if page == 'moderation' %}active{% endif %}" style="display:none;"><i class="fas fa-shield-halved"></i> Moderasyon</a>
-        <a id="navAdmin" href="/dashboard/admin" class="nav-item {% if page == 'admin' %}active{% endif %}" style="display:none;"><i class="fas fa-user-gear"></i> Yönetici İşlemleri</a>
-        <div style="margin-top:auto;"><div class="nav-item" style="color:#fca5a5; cursor: pointer;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</div></div>
+        <a id="navAdmin" href="/dashboard/admin" class="nav-item {% if page == 'admin' %}active{% endif %}" style="display:none;"><i class="fas fa-user-gear"></i> Yonetici Islemleri</a>
+        <div style="margin-top:auto;"><div class="nav-item" style="color:#fca5a5; cursor: pointer;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cikis Yap</div></div>
     </aside>
 
     <main class="main-content {% if page != 'home' %}with-offset{% endif %}">
@@ -404,20 +437,20 @@
     <div id="aiWindow">
         <div class="chat-header">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: grid; place-items: center;"><i class="fas fa-robot" style="font-size: 0.9rem;"></i></div>
-                <div><div style="font-weight: 700; font-size: 1rem; line-height: 1;">Eco-Asistan</div><div style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">Çevrimiçi</div></div>
+                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 10px; display: grid; place-items: center;"><i class="fas fa-robot" style="font-size: 0.9rem;"></i></div>
+                <div><div style="font-weight: 700; font-size: 0.95rem; line-height: 1;">Eco-Asistan</div><div style="font-size: 0.72rem; opacity: 0.8; margin-top: 2px;">Cevrimici</div></div>
             </div>
-            <i class="fas fa-times" style="cursor: pointer; opacity: 0.8; font-size: 1.2rem;" onclick="toggleChat()"></i>
+            <i class="fas fa-times" style="cursor: pointer; opacity: 0.8; font-size: 1.1rem;" onclick="toggleChat()"></i>
         </div>
-        <div id="chatMessages" class="chat-body"><div class="msg msg-ai">Merhaba! 👋 Ben kişisel karbon danışmanınızım.</div></div>
+        <div id="chatMessages" class="chat-body"><div class="msg msg-ai">Merhaba! Ben kisisel karbon danismaninizim.</div></div>
         <div class="chat-input-area">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Bir şeyler sorun..." onkeydown="if(event.key === 'Enter') sendMessage()">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Bir seyler sorun..." onkeydown="if(event.key === 'Enter') sendMessage()">
             <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script>
-        // Kaydırma Takibi (Scrolled Sınıfı Ekleme)
+        // Scroll tracking
         const keepScrolled = {{ 'true' if page != 'home' else 'false' }};
         const MOBILE_MAX = 768;
         const TABLET_MAX = 1100;
@@ -532,7 +565,7 @@
             const chatArea = document.getElementById('chatMessages');
             const div = document.createElement('div');
             div.className = `msg msg-${sender}`;
-            div.innerText = text || ""; 
+            div.innerText = text || "";
             chatArea.appendChild(div);
             chatArea.scrollTop = chatArea.scrollHeight;
         }
@@ -547,7 +580,7 @@
                 const resp = await fetch("/api/ai-chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: txt }) });
                 const data = await resp.json();
                 addMessage(data.response, 'ai');
-            } catch (err) { addMessage("Bağlantı hatası.", 'ai'); }
+            } catch (err) { addMessage("Baglanti hatasi.", 'ai'); }
         }
 
         (async function boot() {

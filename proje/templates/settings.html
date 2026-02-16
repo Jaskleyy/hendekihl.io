@@ -1,155 +1,145 @@
-﻿{% extends "layout.html" %}
+{% extends "layout.html" %}
 
 {% block title %}Ayarlar{% endblock %}
-{% block header_title %}Hesap Yönetimi{% endblock %}
+{% block header_title %}Hesap Yonetimi{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* --- TRILYON DOLARLIK TASARIM CSS --- */
-    
-    /* Genel Düzen */
     .settings-wrapper {
         max-width: 800px;
         margin: 0 auto;
         padding-top: 0;
-        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(16px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Premium Kart */
     .section-card {
         background: #ffffff;
-        border-radius: 24px;
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); /* Çok soft gölge */
-        border: 1px solid rgba(0,0,0,0.02);
-        margin-bottom: 40px;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 32px;
         overflow: hidden;
     }
 
-    /* Bölüm Başlığı */
     .section-header {
-        padding: 30px 40px;
-        border-bottom: 1px solid #f3f4f6;
+        padding: 28px 32px;
+        border-bottom: 1px solid #f1f5f9;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
     .section-header h3 {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
-        color: #111827;
+        font-size: 1.3rem;
+        color: #0f172a;
         margin: 0;
-        font-weight: 700;
+        font-weight: 800;
+        letter-spacing: -0.02em;
     }
 
     .section-header p {
-        font-family: 'Manrope', sans-serif;
-        font-size: 0.9rem;
-        color: #6b7280;
-        margin: 5px 0 0 0;
+        font-size: 0.88rem;
+        color: #64748b;
+        margin: 4px 0 0 0;
     }
 
-    /* Satır Yapısı (iOS List Style) */
     .setting-item {
-        padding: 25px 40px;
+        padding: 22px 32px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid #f3f4f6;
-        transition: background 0.2s;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.15s;
     }
     .setting-item:last-child { border-bottom: none; }
-    .setting-item:hover { background-color: #fafafa; }
+    .setting-item:hover { background-color: #fafbfc; }
 
-    /* Sol Taraf (Label) */
     .item-label strong {
         display: block;
-        font-size: 1rem;
-        color: #1f2937;
-        font-weight: 600;
-        margin-bottom: 4px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 700;
+        margin-bottom: 3px;
     }
     .item-label span {
-        font-size: 0.85rem;
-        color: #9ca3af;
+        font-size: 0.82rem;
+        color: #94a3b8;
     }
 
-    /* Sağ Taraf (Input & Action) */
     .item-action {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
         flex: 1;
         justify-content: flex-end;
-        max-width: 500px;
+        max-width: 480px;
     }
 
-    /* Minimal Input */
     .minimal-input {
         width: 100%;
-        border: none;
-        background: #f3f4f6;
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        color: #111827;
-        font-family: 'Manrope', sans-serif;
+        border: 1.5px solid #e2e8f0;
+        background: #f8fafc;
+        padding: 11px 14px;
+        border-radius: 10px;
+        font-size: 0.92rem;
+        color: #0f172a;
+        font-family: inherit;
         transition: all 0.2s;
     }
     .minimal-input:focus {
         background: #ffffff;
-        box-shadow: 0 0 0 2px #111827; /* Apple tarzı siyah outline */
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         outline: none;
     }
 
-    /* Premium Buton (Simsiyah) */
     .btn-black {
-        background-color: #111827; /* Apple Black */
+        background-color: #0f172a;
         color: white;
-        padding: 12px 24px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.9rem;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.88rem;
         border: none;
         cursor: pointer;
-        transition: transform 0.1s, box-shadow 0.2s;
+        transition: all 0.2s;
         white-space: nowrap;
+        font-family: inherit;
     }
     .btn-black:hover {
-        background-color: #000000;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        background-color: #020617;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
-    .btn-black:active { transform: scale(0.96); }
+    .btn-black:active { transform: scale(0.97); }
 
-    /* Tehlikeli Buton */
     .btn-ghost-danger {
         background: transparent;
         color: #ef4444;
-        border: 1px solid #fee2e2;
+        border: 1px solid #fecaca;
         padding: 10px 20px;
         border-radius: 10px;
-        font-weight: 600;
-        font-size: 0.9rem;
+        font-weight: 700;
+        font-size: 0.88rem;
         cursor: pointer;
         transition: 0.2s;
+        font-family: inherit;
     }
     .btn-ghost-danger:hover {
         background: #fef2f2;
         border-color: #ef4444;
     }
 
-    /* --- MODAL (Açılır Pencere) --- */
     .modal-backdrop {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.4); /* Daha hafif backdrop */
-        backdrop-filter: blur(8px); /* Güçlü blur */
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(8px);
         z-index: 2000;
         align-items: center;
         justify-content: center;
@@ -161,54 +151,53 @@
     .modal-card {
         background: #ffffff;
         width: 100%;
-        max-width: 440px;
-        padding: 40px;
-        border-radius: 30px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        transform: scale(0.95);
+        max-width: 420px;
+        padding: 36px;
+        border-radius: 20px;
+        box-shadow: 0 24px 48px rgba(0,0,0,0.2), 0 0 0 1px #e2e8f0;
+        transform: scale(0.96);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
     }
     .modal-backdrop.active .modal-card { transform: scale(1); }
 
-    /* Modal İkonu */
     .modal-icon-box {
-        width: 64px; height: 64px;
-        border-radius: 50%;
-        background: #f3f4f6;
-        color: #111827;
+        width: 56px; height: 56px;
+        border-radius: 14px;
+        background: #f1f5f9;
+        color: #0f172a;
         display: grid; place-items: center;
-        margin: 0 auto 20px auto;
-        font-size: 1.5rem;
+        margin: 0 auto 18px auto;
+        font-size: 1.3rem;
     }
 
-    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0 0 10px 0; color: #111827; }
-    .modal-desc { color: #6b7280; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.5; }
+    .modal-title { font-size: 1.5rem; margin: 0 0 8px 0; color: #0f172a; font-weight: 800; letter-spacing: -0.02em; }
+    .modal-desc { color: #64748b; font-size: 0.92rem; margin-bottom: 24px; line-height: 1.6; }
 
-    /* Modal Input */
-    .modal-input-group { margin-bottom: 20px; text-align: left; }
-    .modal-label { display: block; font-size: 0.75rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-    
-    .full-width-btn { width: 100%; padding: 16px; font-size: 1rem; margin-top: 10px; }
-    
+    .modal-input-group { margin-bottom: 16px; text-align: left; }
+    .modal-label { display: block; font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.8px; }
+
+    .full-width-btn { width: 100%; padding: 14px; font-size: 0.95rem; margin-top: 8px; }
+
     .btn-cancel {
-        background: transparent; border: none; color: #9ca3af;
-        font-weight: 600; cursor: pointer; margin-top: 20px; font-size: 0.9rem;
+        background: transparent; border: none; color: #94a3b8;
+        font-weight: 600; cursor: pointer; margin-top: 16px; font-size: 0.88rem;
+        font-family: inherit;
     }
-    .btn-cancel:hover { color: #111827; }
+    .btn-cancel:hover { color: #0f172a; }
 
-    /* Status Mesajları */
     .status-msg {
-        margin-bottom: 20px; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none;
+        margin-bottom: 16px; padding: 12px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; display: none;
     }
     .st-error { background: #fef2f2; color: #dc2626; }
     .st-success { background: #f0fdf4; color: #166534; }
 
     @media (max-width: 768px) {
         .settings-wrapper { padding-top: 0; }
-        .setting-item { flex-direction: column; align-items: flex-start; gap: 15px; }
-        .item-action { width: 100%; }
-        .section-header { padding: 25px; }
+        .setting-item { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 20px; }
+        .item-action { width: 100%; max-width: none; }
+        .section-header { padding: 22px 20px; }
+        .modal-card { padding: 28px 24px; margin: 0 16px; }
     }
 </style>
 {% endblock %}
@@ -219,52 +208,52 @@
     <div class="section-card">
         <div class="section-header">
             <div>
-                <h3>Güvenlik ve Giriş</h3>
-                <p>Hesap erişim bilgilerinizi güncel tutun.</p>
+                <h3>Guvenlik ve Giris</h3>
+                <p>Hesap erisim bilgilerinizi guncel tutun.</p>
             </div>
         </div>
 
-        <div id="emailStatus" class="status-msg" style="margin: 0 40px;"></div>
+        <div id="emailStatus" class="status-msg" style="margin: 0 32px;"></div>
 
         <div class="setting-item">
             <div class="item-label">
                 <strong>E-posta Adresi</strong>
-                <span>Doğrulama ve bildirimler için kullanılır.</span>
+                <span>Dogrulama ve bildirimler icin kullanilir.</span>
             </div>
             <div class="item-action">
                 <input type="email" id="newEmail" class="minimal-input" placeholder="yeni@eposta.com">
-                <button id="emailUpdateBtn" class="btn-black" onclick="updateEmail()">Güncelle</button>
+                <button id="emailUpdateBtn" class="btn-black" onclick="updateEmail()">Guncelle</button>
             </div>
         </div>
 
         <div class="setting-item">
             <div class="item-label">
-                <strong>Şifre</strong>
-                <span>Hesap güvenliğiniz için periyodik olarak değiştirin.</span>
+                <strong>Sifre</strong>
+                <span>Hesap guvenliginiz icin periyodik olarak degistirin.</span>
             </div>
             <div class="item-action">
-                <button class="btn-black" style="background: white; color: #111827; border: 1px solid #e5e7eb;" onclick="openModal('passModal')">
-                    Şifreyi Değiştir
+                <button class="btn-black" style="background: white; color: #0f172a; border: 1px solid #e2e8f0;" onclick="openModal('passModal')">
+                    Sifreyi Degistir
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="section-card" style="border: 1px solid #fee2e2;">
-        <div class="section-header" style="background: #fffafa;">
+    <div class="section-card" style="border-color: #fecaca;">
+        <div class="section-header" style="background: #fef2f2;">
             <div>
-                <h3 style="color: #9f1239;">Veri ve Gizlilik</h3>
-                <p>Hesabınızı kalıcı olarak sistemden kaldırın.</p>
+                <h3 style="color: #dc2626;">Veri ve Gizlilik</h3>
+                <p>Hesabinizi kalici olarak sistemden kaldirin.</p>
             </div>
         </div>
 
         <div class="setting-item">
             <div class="item-label">
-                <strong style="color: #9f1239;">Hesabı Sil</strong>
-                <span>Bu işlem geri alınamaz ve tüm verileriniz kaybolur.</span>
+                <strong style="color: #dc2626;">Hesabi Sil</strong>
+                <span>Bu islem geri alinamaz ve tum verileriniz kaybolur.</span>
             </div>
             <div class="item-action">
-                <button class="btn-ghost-danger" onclick="openDeleteCodeModal()">Hesabı Sil</button>
+                <button class="btn-ghost-danger" onclick="openDeleteCodeModal()">Hesabi Sil</button>
             </div>
         </div>
     </div>
@@ -276,61 +265,61 @@
         <div class="modal-icon-box">
             <i class="fas fa-lock"></i>
         </div>
-        <h3 class="modal-title">Şifre Değiştir</h3>
-        <p class="modal-desc">Güvenliğiniz için önce mevcut şifrenizi, ardından yeni şifrenizi giriniz.</p>
+        <h3 class="modal-title">Sifre Degistir</h3>
+        <p class="modal-desc">Guvenliginiz icin once mevcut sifrenizi, ardindan yeni sifrenizi giriniz.</p>
 
         <div id="passwordStatus" class="status-msg"></div>
 
         <div class="modal-input-group">
-            <label class="modal-label">Mevcut Şifre</label>
+            <label class="modal-label">Mevcut Sifre</label>
             <input type="password" id="currentPass" class="minimal-input">
         </div>
         <div class="modal-input-group">
-            <label class="modal-label">Yeni Şifre (En az 8 karakter)</label>
+            <label class="modal-label">Yeni Sifre (En az 8 karakter)</label>
             <input type="password" id="newPass" class="minimal-input">
         </div>
 
-        <button class="btn-black full-width-btn" onclick="updatePassword()">Şifreyi Güncelle</button>
-        <button class="btn-cancel" onclick="closeModal('passModal')">Vazgeç</button>
+        <button class="btn-black full-width-btn" onclick="updatePassword()">Sifreyi Guncelle</button>
+        <button class="btn-cancel" onclick="closeModal('passModal')">Vazgec</button>
     </div>
 </div>
 
 <div id="delCodeModal" class="modal-backdrop">
     <div class="modal-card">
-        <div class="modal-icon-box" style="background: #eff6ff; color: #1d4ed8;">
+        <div class="modal-icon-box" style="background: #eef2ff; color: #6366f1;">
             <i class="fas fa-envelope-open-text"></i>
         </div>
-        <h3 class="modal-title">Adım 1: Mail Kodu</h3>
-        <p class="modal-desc">Hesap silme öncesi e-postana gelen 6 haneli kodu doğrula.</p>
+        <h3 class="modal-title">Adim 1: Mail Kodu</h3>
+        <p class="modal-desc">Hesap silme oncesi e-postana gelen 6 haneli kodu dogrula.</p>
 
         <div id="delCodeStatus" class="status-msg"></div>
 
-        <button class="btn-black full-width-btn" onclick="sendDeleteCode()">Doğrulama Kodu Gönder</button>
+        <button class="btn-black full-width-btn" onclick="sendDeleteCode()">Dogrulama Kodu Gonder</button>
 
         <div class="modal-input-group" style="margin-top: 12px;">
             <label class="modal-label">Mail Kodu</label>
             <input id="delCodeInput" class="minimal-input" maxlength="6" style="text-align: center; letter-spacing: 3px; font-weight: 700;">
         </div>
-        <button class="btn-black full-width-btn" onclick="verifyDeleteCode()">Kodu Doğrula</button>
-        <button class="btn-cancel" onclick="closeModal('delCodeModal')">Vazgeç</button>
+        <button class="btn-black full-width-btn" onclick="verifyDeleteCode()">Kodu Dogrula</button>
+        <button class="btn-cancel" onclick="closeModal('delCodeModal')">Vazgec</button>
     </div>
 </div>
 
 <div id="delPassModal" class="modal-backdrop">
     <div class="modal-card">
-        <div class="modal-icon-box" style="background: #fee2e2; color: #dc2626;">
+        <div class="modal-icon-box" style="background: #fef2f2; color: #dc2626;">
             <i class="fas fa-shield-alt"></i>
         </div>
-        <h3 class="modal-title">Adım 2: Şifre Onayı</h3>
-        <p class="modal-desc">Kod doğrulandı. Hesabı kalıcı silmek için şifreni gir.</p>
+        <h3 class="modal-title">Adim 2: Sifre Onayi</h3>
+        <p class="modal-desc">Kod dogrulandi. Hesabi kalici silmek icin sifreni gir.</p>
 
         <div id="delPassStatus" class="status-msg"></div>
         <div class="modal-input-group">
-            <label class="modal-label">Şifreniz</label>
+            <label class="modal-label">Sifreniz</label>
             <input id="delPassInput" type="password" class="minimal-input">
         </div>
-        <button class="btn-black full-width-btn" style="background: #dc2626;" onclick="finalDelete()">HESABI KALICI OLARAK SİL</button>
-        <button class="btn-cancel" onclick="closeModal('delPassModal')">Vazgeç</button>
+        <button class="btn-black full-width-btn" style="background: #dc2626;" onclick="finalDelete()">HESABI KALICI OLARAK SIL</button>
+        <button class="btn-cancel" onclick="closeModal('delPassModal')">Vazgec</button>
     </div>
 </div>
 
@@ -354,7 +343,6 @@
         if (!el) return;
         el.style.display = 'flex';
         setTimeout(() => el.classList.add('active'), 10);
-
         if (id === 'passModal') {
             document.getElementById('currentPass').value = '';
             document.getElementById('newPass').value = '';
@@ -377,9 +365,7 @@
         setTimeout(() => { el.style.display = 'none'; }, 300);
     }
 
-    function openDeleteCodeModal() {
-        openModal('delCodeModal');
-    }
+    function openDeleteCodeModal() { openModal('delCodeModal'); }
 
     function showStatus(elId, message, ok) {
         const el = document.getElementById(elId);
@@ -393,7 +379,6 @@
         const btn = document.getElementById('emailUpdateBtn');
         const originalText = btn.innerText;
         btn.innerText = 'Guncelleniyor...';
-
         const email = document.getElementById('newEmail').value.trim();
         try {
             const resp = await fetch('/profile/email', {
@@ -414,14 +399,12 @@
         const currentPass = document.getElementById('currentPass').value;
         const newPass = document.getElementById('newPass').value;
         const statusEl = document.getElementById('passwordStatus');
-
         if (!currentPass || !newPass) {
             statusEl.innerText = 'Lutfen alanlari doldurun.';
             statusEl.style.display = 'block';
             statusEl.className = 'status-msg st-error';
             return;
         }
-
         try {
             const resp = await fetch('/profile/password', {
                 method: 'POST',
@@ -432,10 +415,7 @@
             statusEl.innerText = res.message || 'Islem tamamlandi.';
             statusEl.style.display = 'block';
             statusEl.className = resp.ok ? 'status-msg st-success' : 'status-msg st-error';
-
-            if (resp.ok) {
-                setTimeout(() => closeModal('passModal'), 1200);
-            }
+            if (resp.ok) setTimeout(() => closeModal('passModal'), 1200);
         } catch (e) {
             statusEl.innerText = 'Baglanti hatasi.';
             statusEl.style.display = 'block';
@@ -455,10 +435,7 @@
 
     async function verifyDeleteCode() {
         const code = document.getElementById('delCodeInput').value.trim();
-        if (!code) {
-            showStatus('delCodeStatus', 'Kod gerekli.', false);
-            return;
-        }
+        if (!code) { showStatus('delCodeStatus', 'Kod gerekli.', false); return; }
         try {
             const resp = await fetch('/account-delete/verify-code', {
                 method: 'POST',
@@ -468,23 +445,14 @@
             const res = await resp.json().catch(() => ({}));
             showStatus('delCodeStatus', res.message || 'Kod kontrol edildi.', resp.ok);
             if (resp.ok) {
-                setTimeout(() => {
-                    closeModal('delCodeModal');
-                    openModal('delPassModal');
-                }, 300);
+                setTimeout(() => { closeModal('delCodeModal'); openModal('delPassModal'); }, 300);
             }
-        } catch (e) {
-            showStatus('delCodeStatus', 'Kod dogrulanamadi.', false);
-        }
+        } catch (e) { showStatus('delCodeStatus', 'Kod dogrulanamadi.', false); }
     }
 
     async function finalDelete() {
         const password = document.getElementById('delPassInput').value;
-        if (!password) {
-            showStatus('delPassStatus', 'Sifre gerekli.', false);
-            return;
-        }
-
+        if (!password) { showStatus('delPassStatus', 'Sifre gerekli.', false); return; }
         try {
             const resp = await fetch('/account-delete/finalize', {
                 method: 'POST',
@@ -492,14 +460,9 @@
                 body: JSON.stringify({ password })
             });
             const res = await resp.json().catch(() => ({}));
-            if (resp.ok) {
-                window.location.href = '/';
-                return;
-            }
+            if (resp.ok) { window.location.href = '/'; return; }
             showStatus('delPassStatus', res.message || 'Hesap silinemedi.', false);
-        } catch (e) {
-            showStatus('delPassStatus', 'Baglanti hatasi.', false);
-        }
+        } catch (e) { showStatus('delPassStatus', 'Baglanti hatasi.', false); }
     }
 </script>
 {% endblock %}

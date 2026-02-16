@@ -22,8 +22,8 @@
     }
     .search-input:focus {
         background: white;
-        box-shadow: 0 4px 15px rgba(6, 78, 59, 0.1);
-        border-color: #064e3b;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1);
+        border-color: #6366f1;
     }
     .search-icon {
         position: absolute;
@@ -34,7 +34,7 @@
         pointer-events: none;
         transition: 0.3s;
     }
-    .search-input:focus + .search-icon { color: #064e3b; }
+    .search-input:focus + .search-icon { color: #6366f1; }
 
     /* --- FORUM KART TASARIMI (Hover) --- */
     .hover-card {
@@ -52,7 +52,7 @@
     .hc-info { margin-left: 110px; padding-top: 10px; }
     .hc-name { font-size: 1.4rem; font-weight: 700; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hc-user { font-size: 0.9rem; color: #94a3b8; display: block; margin-bottom: 5px; }
-    .hc-badge { display: inline-block; background: #064e3b; color: #ecfdf5; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+    .hc-badge { display: inline-block; background: #6366f1; color: #eef2ff; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
     .hc-stats { display: flex; border-top: 1px solid #334155; background: #0f172a; margin-top: 15px; }
     .hc-stat-item { flex: 1; text-align: center; padding: 12px 5px; border-right: 1px solid #334155; }
     .hc-stat-item:last-child { border-right: none; }
@@ -73,7 +73,7 @@
     /* Ana dal çizgisi */
     .post-comments::before {
         content: ""; position: absolute; left: 0; top: 0; bottom: 20px;
-        width: 2px; background: linear-gradient(to bottom, #dbeafe 0%, #059669 100%);
+        width: 2px; background: linear-gradient(to bottom, #c7d2fe 0%, #6366f1 100%);
         opacity: 0.5;
     }
 
@@ -88,7 +88,7 @@
         transition: 0.2s;
     }
     
-    .comment-item:hover { border-color: #d1fae5; background: #f0fdf4; }
+    .comment-item:hover { border-color: #c7d2fe; background: #eef2ff; }
 
     /* Yan dal çizgisi */
     .comment-item::before {
@@ -97,7 +97,7 @@
     }
     .comment-item::after {
         content: ""; position: absolute; left: -24px; top: 16px;
-        width: 8px; height: 8px; background: #059669; border-radius: 50%;
+        width: 8px; height: 8px; background: #6366f1; border-radius: 50%;
     }
 
     .comment-head {
@@ -114,7 +114,7 @@
         align-items: center;
         gap: 8px;
     }
-    .comment-author { font-weight: 700; color: #064e3b; text-decoration: none; }
+    .comment-author { font-weight: 700; color: #6366f1; text-decoration: none; }
     .comment-text { color: #334155; line-height: 1.5; font-size: 0.95rem; }
     .comment-node.is-reply { margin-top: 10px; }
     .comment-item.comment-item-reply { background: #ffffff; border-color: #dbeafe; }
@@ -224,7 +224,7 @@
         width: 38px;
         border: none;
         border-radius: 6px;
-        background: #064e3b;
+        background: #6366f1;
         color: #fff;
         cursor: pointer;
     }
@@ -322,7 +322,7 @@
         border-radius: 6px;
     }
     .comment-send-btn {
-        background: #064e3b;
+        background: #6366f1;
         color: white;
         border: none;
         border-radius: 6px;
