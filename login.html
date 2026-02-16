@@ -1,0 +1,566 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO-ACCESS | Geleceği Kurtar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005F73;       /* Derin Okyanus */
+            --dark: #001219;          /* Gece Siyahı */
+            --accent: #EE9B00;        /* Umut Turuncusu */
+            --light: #E9EDC9;         /* Doğa Beji */
+            --white: #ffffff;
+            --text-gray: #4b5563;
+        }
+
+        * { box-sizing: border-box; }
+        
+        /* Standart smooth scroll'u kapattık, JS ile kontrol edeceğiz */
+        html { scroll-behavior: auto; }
+
+        body {
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+            color: var(--dark);
+            background-color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 600; font-size: 0.95rem; transition: 0.3s; cursor: pointer;}
+        .nav-links a:hover { color: var(--accent); }
+
+        .btn-login-nav {
+            background: var(--primary);
+            color: var(--white) !important;
+            padding: 10px 24px;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+        .btn-login-nav:hover { background: var(--accent); transform: translateY(-2px); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 18, 25, 0.4), rgba(0, 18, 25, 0.6)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .hero-content { max-width: 900px; animation: fadeInUp 1s ease; }
+        
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            margin-bottom: 40px;
+            font-weight: 400;
+            opacity: 0.9;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: var(--white);
+            text-decoration: none;
+            padding: 18px 45px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(238, 155, 0, 0.4);
+            display: inline-block;
+        }
+        .cta-btn:hover { transform: translateY(-5px); background: #ffaa00; }
+
+        /* --- EMOTIONAL SECTIONS --- */
+        .emotional-section {
+            padding: 100px 5%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .text-block { flex: 1; min-width: 300px; }
+        .text-block h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        .text-block p { font-size: 1.1rem; line-height: 1.8; color: var(--text-gray); margin-bottom: 20px;}
+        
+        .highlight-text { border-left: 4px solid var(--accent); padding-left: 20px; font-style: italic; color: var(--dark); margin: 30px 0; }
+
+        .image-block { flex: 1; min-width: 300px; }
+        .image-card {
+            width: 100%;
+            height: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .image-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .image-card:hover img { transform: scale(1.05); }
+
+        /* --- IMPACT SECTION --- */
+        .impact-section {
+            background: var(--dark);
+            color: var(--white);
+            padding: 80px 5%;
+            text-align: center;
+        }
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        .impact-item i { font-size: 3rem; color: var(--accent); margin-bottom: 20px; }
+        .impact-item h3 { font-size: 2.5rem; font-family: 'Montserrat', sans-serif; margin: 0; }
+        .impact-item p { font-size: 1rem; opacity: 0.7; margin-top: 10px; }
+
+        /* --- PROFESYONEL MODAL TASARIMI --- */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 20, 30, 0.9);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px; /* Biraz daha genişlettik */
+            padding: 40px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: modalSlide 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh; /* Mobilde taşmasın diye */
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlide {
+            from { transform: scale(0.9) translateY(30px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 1.5rem;
+            color: #aaa;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .close-modal:hover { color: var(--primary); }
+
+        .form-title { 
+            text-align: center; color: var(--primary); font-family: 'Montserrat', sans-serif; 
+            font-size: 1.8rem; margin-bottom: 5px; font-weight: 800;
+        }
+        .form-subtitle {
+            text-align: center; color: var(--text-gray); font-size: 0.9rem; margin-bottom: 25px;
+        }
+
+        /* --- Profesyonel Form Alanları --- */
+        .input-wrapper { position: relative; margin-bottom: 15px; }
+        
+        .input-wrapper i {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; transition: 0.3s;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 14px 14px 14px 45px; /* İkon için soldan boşluk */
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: 0.3s;
+            background: #f8fafc;
+            color: var(--dark);
+        }
+
+        .input-wrapper input:focus, .input-wrapper select:focus {
+            border-color: var(--primary);
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 95, 115, 0.1);
+        }
+        
+        .input-wrapper input:focus + i { color: var(--primary); }
+
+        /* Yan yana form elemanları için Grid */
+        .form-grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(0, 95, 115, 0.2);
+        }
+        .btn-full:hover { background: var(--dark); transform: translateY(-2px); }
+
+        .switch-link { text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-gray); }
+        .switch-link span { color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: underline; }
+
+        .auth-message { margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none; text-align: center; }
+        .auth-message.error { background: #ffe3e3; color: #c92a2a; border: 1px solid #fecaca; }
+        .auth-message.success { background: #d3f9d8; color: #2b8a3e; border: 1px solid #bbf7d0; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .emotional-section { flex-direction: column; text-align: center; }
+            .highlight-text { border-left: none; border-top: 4px solid var(--accent); padding-top: 20px; padding-left: 0; }
+            .nav-links { display: none; }
+            .form-grid-row { grid-template-columns: 1fr; gap: 0; } /* Mobilde alt alta olsun */
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="logo"><i class="fas fa-leaf"></i> ECO-ACCESS</a>
+        <div class="nav-links">
+            <a href="#why" class="scroll-link">Neden Önemli</a>
+            <a href="#impact" class="scroll-link">Etkiler</a>
+            <a onclick="openModal('login')" class="btn-login-nav">Giriş Yap</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Gelecek, Senin <br><span style="color:var(--accent)">Parmak Uçlarında.</span></h1>
+            <p>Küçük bir hesaplama, büyük bir farkındalığın başlangıcıdır. Çocuklarımız, ormanlarımız ve dilsiz dostlarımız için bugün harekete geç.</p>
+            <button class="cta-btn" onclick="openModal('register')">Karbon Ayak İzini Ölç &rarr;</button>
+        </div>
+    </section>
+
+    <section id="why" class="emotional-section">
+        <div class="image-block">
+            <div class="image-card">
+                <img src="https://images.unsplash.com/photo-1589656966895-2f33e7653819?q=80&w=1000&auto=format&fit=crop" alt="Kutup Ayısı">
+            </div>
+        </div>
+        <div class="text-block">
+            <h2>Evleri Eriyor,<br>Zamanları Tükeniyor.</h2>
+            <p>Her yıl atmosfere salınan tonlarca karbon, sadece hava durumunu değiştirmiyor. Binlerce yıldır buzullarda yaşayan dostlarımızın evlerini yok ediyor. Onların sesi çıkmıyor, ama senin çıkabilir.</p>
+            <div class="highlight-text">
+                "Doğayı miras değil, çocuklarımızdan ödünç aldık."
+            </div>
+            <p>Senin yapacağın basit bir hesaplama ve azaltım planı, bir canlının yaşam alanını korumaya yardımcı olabilir.</p>
+        </div>
+    </section>
+
+    <section class="emotional-section" style="background-color: #f8fafc; flex-direction: row-reverse;">
+        <div class="image-block">
+            <div class="image-card">
+                <img src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?q=80&w=1000&auto=format&fit=crop" alt="Gelecek Nesil">
+            </div>
+        </div>
+        <div class="text-block">
+            <h2>Onlara Nasıl Bir Dünya<br>Bırakacağız</h2>
+            <p>Gri gökyüzü, maskeyle nefes alınan sokaklar mı? Yoksa kuş seslerinin duyulduğu, yeşil parklarda koşulan bir dünya mı?</p>
+            <p>ECO-ACCESS, sadece bir hesaplama aracı değil. Senin, çocukların ve torunların için daha yaşanabilir bir dünya kurma rehberindir. Değişim seninle başlar.</p>
+            <button class="cta-btn" style="margin-top:20px; background:var(--primary);" onclick="openModal('register')">Hemen Başla</button>
+        </div>
+    </section>
+
+    <section id="impact" class="impact-section">
+        <h2 style="font-family:'Montserrat', sans-serif; font-size:2.5rem;">Birlikte Başarabiliriz</h2>
+        <p>Küçük adımlar, topluluk gücüyle devrim yaratır.</p>
+        <div class="impact-grid">
+            <div class="impact-item">
+                <i class="fas fa-users"></i>
+                <h3>Binlerce</h3>
+                <p>Bilinçli Kullanıcı</p>
+            </div>
+            <div class="impact-item">
+                <i class="fas fa-tree"></i>
+                <h3>%40</h3>
+                <p>Hedeflenen Azaltım</p>
+            </div>
+            <div class="impact-item">
+                <i class="fas fa-globe-americas"></i>
+                <h3>1 Dünya</h3>
+                <p>Tek Şansımız Var</p>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background:var(--dark); color:#666; padding:30px; text-align:center; border-top:1px solid #333;">
+        <p>&copy; 2024 ECO-ACCESS Project. Gezegen için kodlandı.</p>
+    </footer>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <i class="fas fa-times close-modal" onclick="closeModal()"></i>
+            
+            <div id="loginForm">
+                <h2 class="form-title">Giriş Yap</h2>
+                <p class="form-subtitle">Tekrar hoş geldin, karbon savaşçısı.</p>
+                
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
+                </div>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Şifre">
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px; color:#666; font-size:0.9rem;">
+                    <input type="checkbox" id="rememberMe" style="width:auto; margin:0;"> Beni Hatırla
+                </div>
+
+                <button class="btn-full" onclick="submitAuth('login')">Giriş Yap</button>
+                <div class="switch-link">Hesabın yok mu <span onclick="toggleForm('register')">Hesap Oluştur</span></div>
+            </div>
+
+            <div id="registerForm" style="display:none;">
+                <h2 class="form-title">Hesap Oluştur</h2>
+                <p class="form-subtitle">Gezegeni kurtarmaya bugün başla.</p>
+                
+                <div class="form-grid-row">
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="regUsername" placeholder="Kullanıcı Adı (değiştirilemez)">
+                    </div>
+                    <div class="input-wrapper">
+                        <i class="fas fa-at"></i>
+                        <input type="text" id="regDisplayName" placeholder="Görünen Ad">
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="E-posta Adresi">
+                </div>
+                
+                <div class="form-grid-row">
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="regFullName" placeholder="Ad Soyad">
+                    </div>
+                    <div class="input-wrapper">
+                        <i class="fas fa-calendar"></i>
+                        <input type="date" id="regBirthDate">
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="fas fa-graduation-cap"></i>
+                    <select id="regEducation">
+                        <option value="">Eğitim Düzeyi Seçin</option>
+                        <option value="ilkokul">İlkokul</option>
+                        <option value="ortaokul">Ortaokul</option>
+                        <option value="lise">Lise</option>
+                        <option value="lisans">Lisans</option>
+                        <option value="yetiskin">Yetiskin</option>
+                    </select>
+                </div>
+
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regPassword" placeholder="Şifre (Min 8 karakter)">
+                </div>
+
+                <button class="btn-full" onclick="submitAuth('register')">Ücretsiz Kayıt Ol</button>
+                <div class="switch-link">Zaten üye misin <span onclick="toggleForm('login')">Giriş Yap</span></div>
+            </div>
+
+            <div id="authMessage" class="auth-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- YAVAŞ (SİNEMATİK) SCROLL FONKSİYONU ---
+        document.querySelectorAll('.scroll-link').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (!targetSection) return;
+
+                const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset;
+                const startPosition = window.pageYOffset;
+                const distance = targetPosition - startPosition;
+                const duration = 1500; // 1500ms = 1.5 saniye (Normalden daha yavaş)
+                let start = null;
+
+                function step(timestamp) {
+                    if (!start) start = timestamp;
+                    const progress = timestamp - start;
+                    // Ease-in-out fonksiyonu (Yavaş başla, hızlan, yavaş dur)
+                    const ease = progress / duration < 0.5 
+                        ? 2 * progress * progress / (duration * duration) 
+                        : 1 - Math.pow(-2 * progress / duration + 2, 2) / 2;
+                    
+                    window.scrollTo(0, startPosition + distance * ease);
+
+                    if (progress < duration) {
+                        window.requestAnimationFrame(step);
+                    }
+                }
+                window.requestAnimationFrame(step);
+            });
+        });
+
+        // Modal Açma/Kapama
+        function openModal(mode) {
+            document.getElementById('authModal').style.display = 'flex';
+            toggleForm(mode);
+            document.getElementById('authMessage').style.display = 'none';
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function toggleForm(mode) {
+            document.getElementById('loginForm').style.display = mode === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
+            document.getElementById('authMessage').style.display = 'none';
+        }
+
+        // Modal dışına tıklayınca kapat
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('authModal')) {
+                closeModal();
+            }
+        }
+
+        // Backend Bağlantısı
+        async function submitAuth(mode) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "İşleniyor...";
+            btn.disabled = true;
+            
+            const msgBox = document.getElementById('authMessage');
+            msgBox.style.display = 'none';
+
+            let payload = {};
+            let endpoint = mode === 'login' ? '/login' : '/register';
+
+            if(mode === 'login') {
+                payload.username = document.getElementById('loginUsername').value;
+                payload.password = document.getElementById('loginPassword').value;
+                payload.remember_me = document.getElementById('rememberMe').checked;
+            } else {
+                payload.username = document.getElementById('regUsername').value;
+                payload.password = document.getElementById('regPassword').value;
+                payload.email = document.getElementById('regEmail').value;
+                payload.display_name = document.getElementById('regDisplayName').value;
+                payload.full_name = document.getElementById('regFullName').value;
+                payload.birth_date = document.getElementById('regBirthDate').value;
+                payload.education_level = document.getElementById('regEducation').value;
+            }
+
+            try {
+                const resp = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    if (mode === 'login') {
+                        window.location.href = "/dashboard";
+                    } else {
+                        msgBox.innerText = "Kayıt başarılı! Şimdi giriş yapabilirsiniz.";
+                        msgBox.className = "auth-message success";
+                        msgBox.style.display = "block";
+                        setTimeout(() => toggleForm('login'), 2000);
+                    }
+                } else {
+                    msgBox.innerText = data.message || "Bir hata oluştu.";
+                    msgBox.className = "auth-message error";
+                    msgBox.style.display = "block";
+                }
+            } catch (err) {
+                msgBox.innerText = "Sunucuya bağlanılamadı.";
+                msgBox.className = "auth-message error";
+                msgBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+    </script>
+</body>
+</html>
