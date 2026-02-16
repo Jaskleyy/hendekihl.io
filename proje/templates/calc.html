@@ -1,0 +1,641 @@
+﻿{% extends "layout.html" %}
+
+{% block title %}Analiz{% endblock %}
+{% block header_title %}Karbon Analizi{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- PREMIUM WIZARD CSS --- */
+    .calc-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding-top: 18px;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    /* İlerleme Çubuğu */
+    .progress-container {
+        margin-bottom: 40px;
+        text-align: center;
+    }
+    .progress-label {
+        font-size: 0.85rem; font-weight: 700; color: #9ca3af; 
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;
+    }
+    .progress-track {
+        width: 100%; height: 6px; background: #e5e7eb; border-radius: 10px; overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%; background: var(--primary); width: 0%; 
+        transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-radius: 10px;
+    }
+
+    /* Soru Alanı */
+    .question-card {
+        background: #ffffff;
+        border-radius: 30px;
+        padding: 50px;
+        box-shadow: 0 20px 60px -10px rgba(0,0,0,0.08);
+        text-align: center;
+        animation: fadeScale 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeScale {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .q-category {
+        color: var(--accent); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px;
+        margin-bottom: 15px; display: block;
+    }
+
+    .q-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem; color: #111827; margin: 0 0 40px 0;
+    }
+
+    /* Seçenekler Grid */
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    /* Seçim Kartı */
+    .option-btn {
+        background: #f9fafb;
+        border: 2px solid transparent;
+        border-radius: 20px;
+        padding: 30px 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        position: relative;
+    }
+    
+    .option-btn:hover {
+        background: #f0fdf4;
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(6, 78, 59, 0.1);
+    }
+    .option-btn.selected {
+        background: #ecfdf5;
+        border-color: #059669;
+        box-shadow: 0 10px 22px rgba(5, 150, 105, 0.16);
+    }
+
+    .opt-icon { font-size: 2.5rem; margin-bottom: 15px; color: #6b7280; transition: 0.2s; }
+    .option-btn:hover .opt-icon { color: var(--primary); transform: scale(1.1); }
+
+    .opt-text { display: block; font-weight: 700; color: #1f2937; font-size: 1.1rem; }
+    .opt-sub { display: block; font-size: 0.85rem; color: #9ca3af; margin-top: 5px; }
+
+    /* Navigasyon Butonları */
+    .nav-actions {
+        display: flex; justify-content: space-between; margin-top: 40px;
+    }
+    .nav-btn {
+        background: white; border: 1px solid #e5e7eb; padding: 12px 25px;
+        border-radius: 50px; font-weight: 600; color: #6b7280; cursor: pointer; transition: 0.2s;
+    }
+    .nav-btn:hover { color: #111827; border-color: #111827; }
+    .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* SONUÇ EKRANI */
+    .result-view { display: none; text-align: center; padding: 40px; }
+    .result-score { font-size: 6rem; font-family: 'Playfair Display', serif; font-weight: 800; color: var(--primary); line-height: 1; }
+    .result-unit { font-size: 1.5rem; color: #6b7280; margin-bottom: 30px; display: block; }
+
+    @media (max-width: 768px) {
+        .calc-wrapper { padding-top: 8px; }
+        .question-card { padding: 30px 20px; }
+        .q-title { font-size: 1.6rem; }
+        .options-grid { grid-template-columns: 1fr; }
+        .option-btn { padding: 20px; display: flex; align-items: center; text-align: left; gap: 20px; }
+        .opt-icon { margin-bottom: 0; font-size: 2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="calc-wrapper">
+
+    <div class="progress-container" id="progressBox">
+        <span class="progress-label">Analiz İlerlemesi: <span id="stepCounter">1</span> / <span id="totalQuestions">0</span></span>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div id="quizContainer" class="question-card">
+        </div>
+
+    <div class="nav-actions" id="navBox">
+        <button class="nav-btn" onclick="prevQuestion()" id="btnPrev" disabled>
+            <i class="fas fa-arrow-left"></i> Geri
+        </button>
+        <div style="font-size: 0.9rem; color: #cbd5e1; align-self: center;">ECO-ACCESS AI</div>
+    </div>
+
+    <div id="resultContainer" class="result-view">
+        <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--accent); margin-bottom: 20px;"></i>
+        <h2 style="font-size: 2rem; margin-bottom: 10px;">Analiz Tamamlandı!</h2>
+        <p style="color: #6b7280; margin-bottom: 40px;">Verdiğin 23 cevaba göre tahmini günlük karbon ayak izin:</p>
+        
+        <div class="result-score" id="finalScore">0.0</div>
+        <span class="result-unit">kg CO2e / Gün</span>
+
+        <p id="finalNote" style="background:#f3f4f6; padding:20px; border-radius:15px; color:#1f2937;">...</p>
+
+        <a href="/dashboard/home" class="btn btn-primary" style="margin-top: 30px; text-decoration: none;">
+            Panele Dön
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const EDUCATION_LEVELS = new Set(["ilkokul", "ortaokul", "lise", "lisans", "yetiskin"]);
+    const EDUCATION_HINTS = {
+        ilkokul: "Sorulari gunluk okul ve ev duzenine gore cevapla.",
+        ortaokul: "Sorulari haftalik okul ve sosyal hayatina gore cevapla.",
+        lise: "Sorulari ders, ulasim ve ev aliskanliklarina gore cevapla.",
+        lisans: "Sorulari kampus, ev ve tuketim rutininize gore cevapla.",
+        yetiskin: "Sorulari is, ev ve gunluk sorumluluk rutininize gore cevapla."
+    };
+
+    const QUESTION_BANK = [
+        {
+            category: "Ulasim",
+            title_student: "Okula veya gunluk yerlere en cok nasil gidiyorsun",
+            title_adult: "Ise veya gunluk yerlere en cok nasil gidiyorsun",
+            options: [
+                { text: "Yuruyus / Bisiklet", sub: "Dusuk emisyon", icon: "fa-walking", value: 0.0 },
+                { text: "Toplu tasima", sub: "Otobus/Metro", icon: "fa-bus", value: 1.4 },
+                { text: "Motosiklet", sub: "Kisa mesafe arac", icon: "fa-motorcycle", value: 2.6 },
+                { text: "Ozel arac", sub: "Benzin/Dizel", icon: "fa-car", value: 4.2 }
+            ]
+        },
+        {
+            category: "Ulasim",
+            title_student: "Gunluk ulasim mesafen ortalama kac km",
+            title_adult: "Gunluk gidis-gelis mesafen ortalama kac km",
+            options: [
+                { text: "0-5 km", sub: "Kisa", icon: "fa-route", value: 0.4 },
+                { text: "6-15 km", sub: "Orta", icon: "fa-route", value: 1.2 },
+                { text: "16-30 km", sub: "Uzayan", icon: "fa-route", value: 2.6 },
+                { text: "30+ km", sub: "Uzun", icon: "fa-route", value: 4.0 }
+            ]
+        },
+        {
+            category: "Ulasim",
+            title_student: "Haftada kac gun ozel arac kullaniliyor",
+            title_adult: "Haftada kac gun ozel arac kullaniyorsun",
+            options: [
+                { text: "0 gun", sub: "Kullanmiyorum", icon: "fa-calendar-check", value: 0.0 },
+                { text: "1-2 gun", sub: "Az", icon: "fa-calendar-check", value: 1.2 },
+                { text: "3-4 gun", sub: "Orta", icon: "fa-calendar-check", value: 2.4 },
+                { text: "5+ gun", sub: "Cok", icon: "fa-calendar-check", value: 3.8 }
+            ]
+        },
+        {
+            category: "Ulasim",
+            title_student: "Bir yilda ucak yolculugu sikligin ne durumda",
+            title_adult: "Bir yilda ucakla seyahat sikligin ne durumda",
+            options: [
+                { text: "Hic", sub: "0 kez", icon: "fa-plane", value: 0.0 },
+                { text: "1 kez", sub: "Nadir", icon: "fa-plane", value: 1.2 },
+                { text: "2-3 kez", sub: "Ara sira", icon: "fa-plane", value: 2.6 },
+                { text: "4+ kez", sub: "Sik", icon: "fa-plane", value: 4.4 }
+            ]
+        },
+        {
+            category: "Ulasim",
+            title_student: "Trafikte bos bekleme (rolanti) aliskanligi nasil",
+            title_adult: "Aracla beklerken rolantide birakma aliskanligin nasil",
+            options: [
+                { text: "Hemen kapatirim", sub: "Tasarruflu", icon: "fa-stopwatch", value: 0.2 },
+                { text: "Cogu zaman kapatirim", sub: "Iyi", icon: "fa-stopwatch", value: 0.8 },
+                { text: "Bazen acik kalir", sub: "Orta", icon: "fa-stopwatch", value: 1.7 },
+                { text: "Genelde acik", sub: "Yuksek", icon: "fa-stopwatch", value: 2.8 }
+            ]
+        },
+        {
+            category: "Enerji",
+            title_student: "Evde isinma tipi en cok hangisi",
+            title_adult: "Evde ana isinma tipi nedir",
+            options: [
+                { text: "Merkezi / verimli", sub: "Dusuk", icon: "fa-house", value: 1.5 },
+                { text: "Dogalgaz", sub: "Orta", icon: "fa-fire", value: 2.4 },
+                { text: "Elektrikli isitici", sub: "Yuksek tuketim", icon: "fa-plug", value: 3.6 },
+                { text: "Komur / odun", sub: "Yuksek emisyon", icon: "fa-smog", value: 4.8 }
+            ]
+        },
+        {
+            category: "Enerji",
+            title_student: "Kisin oda sicakligini genelde kac derecede tutuyorsunuz",
+            title_adult: "Kisin termostat ayari genelde kac derece",
+            options: [
+                { text: "20C alti", sub: "Dusuk", icon: "fa-temperature-low", value: 0.6 },
+                { text: "20-22C", sub: "Dengeli", icon: "fa-temperature-half", value: 1.1 },
+                { text: "23-24C", sub: "Yuksek", icon: "fa-temperature-high", value: 1.8 },
+                { text: "25C ustu", sub: "Cok yuksek", icon: "fa-temperature-high", value: 2.7 }
+            ]
+        },
+        {
+            category: "Enerji",
+            title_student: "Evde gunluk elektrik kullanimi nasil",
+            title_adult: "Gunluk elektrik tuketiminizi nasil tanimlarsin",
+            options: [
+                { text: "Dusuk", sub: "Tasarruflu", icon: "fa-lightbulb", value: 0.8 },
+                { text: "Normal", sub: "Ortalama", icon: "fa-lightbulb", value: 1.4 },
+                { text: "Yuksek", sub: "Cok cihaz", icon: "fa-lightbulb", value: 2.2 },
+                { text: "Cok yuksek", sub: "Surekli calisan", icon: "fa-lightbulb", value: 3.0 }
+            ]
+        },
+        {
+            category: "Enerji",
+            title_student: "Evde enerji verimli (A++ vb.) cihaz orani nedir",
+            title_adult: "Enerji verimli beyaz esya orani nedir",
+            options: [
+                { text: "%75+", sub: "Iyi", icon: "fa-bolt", value: 0.4 },
+                { text: "%50-75", sub: "Orta iyi", icon: "fa-bolt", value: 0.9 },
+                { text: "%25-50", sub: "Orta", icon: "fa-bolt", value: 1.6 },
+                { text: "%25 alti", sub: "Dusuk", icon: "fa-bolt", value: 2.4 }
+            ]
+        },
+        {
+            category: "Enerji",
+            title_student: "Kullanilmayan cihazlari prizden cekme aliskanligi nasil",
+            title_adult: "Standbyda birakilan cihazlarin durumu nasil",
+            options: [
+                { text: "Hemen kapatirim", sub: "Cok iyi", icon: "fa-power-off", value: 0.2 },
+                { text: "Cogu zaman", sub: "Iyi", icon: "fa-power-off", value: 0.7 },
+                { text: "Bazen", sub: "Orta", icon: "fa-power-off", value: 1.4 },
+                { text: "Nadiren", sub: "Yuksek kayip", icon: "fa-power-off", value: 2.0 }
+            ]
+        },
+        {
+            category: "Beslenme",
+            title_student: "Beslenme tarzini en iyi ne anlatir",
+            title_adult: "Gunluk beslenme tarziniz en cok hangisine yakin",
+            options: [
+                { text: "Bitkisel agirlikli", sub: "Dusuk emisyon", icon: "fa-seedling", value: 0.8 },
+                { text: "Karisik ama dengeli", sub: "Orta", icon: "fa-utensils", value: 1.5 },
+                { text: "Sik et tuketimi", sub: "Yuksek", icon: "fa-drumstick-bite", value: 2.4 },
+                { text: "Cok yuksek et", sub: "En yuksek", icon: "fa-drumstick-bite", value: 3.5 }
+            ]
+        },
+        {
+            category: "Beslenme",
+            title_student: "Kirmizi et tuketimi haftada kac gun",
+            title_adult: "Kirmizi et tuketimi haftada kac gun oluyor",
+            options: [
+                { text: "0 gun", sub: "Yok", icon: "fa-calendar", value: 0.4 },
+                { text: "1-2 gun", sub: "Az", icon: "fa-calendar", value: 1.2 },
+                { text: "3-4 gun", sub: "Orta", icon: "fa-calendar", value: 2.2 },
+                { text: "5+ gun", sub: "Yuksek", icon: "fa-calendar", value: 3.2 }
+            ]
+        },
+        {
+            category: "Beslenme",
+            title_student: "Sut/peynir gibi urunleri ne siklikta tuketiyorsun",
+            title_adult: "Sut urunleri tuketim duzeyi nasil",
+            options: [
+                { text: "Az", sub: "Dusuk", icon: "fa-cheese", value: 0.4 },
+                { text: "Orta", sub: "Dengeli", icon: "fa-cheese", value: 0.9 },
+                { text: "Sik", sub: "Yuksek", icon: "fa-cheese", value: 1.5 },
+                { text: "Her ogun", sub: "Cok yuksek", icon: "fa-cheese", value: 2.1 }
+            ]
+        },
+        {
+            category: "Beslenme",
+            title_student: "Paketli/islennmis gida tuketimi ne seviyede",
+            title_adult: "Paketli gida tuketim aliskanligi nasil",
+            options: [
+                { text: "Nadiren", sub: "Dusuk", icon: "fa-box-open", value: 0.3 },
+                { text: "Haftada 1-2", sub: "Orta", icon: "fa-box-open", value: 0.9 },
+                { text: "Cogu gun", sub: "Yuksek", icon: "fa-box-open", value: 1.6 },
+                { text: "Her gun", sub: "Cok yuksek", icon: "fa-box-open", value: 2.4 }
+            ]
+        },
+        {
+            category: "Beslenme",
+            title_student: "Yemek artigini cope atma durumu nasil",
+            title_adult: "Yemek atigi olusumu ne seviyede",
+            options: [
+                { text: "Neredeyse hic", sub: "Cok iyi", icon: "fa-trash-can", value: 0.2 },
+                { text: "Ara sira", sub: "Iyi", icon: "fa-trash-can", value: 0.8 },
+                { text: "Haftada birkac", sub: "Orta", icon: "fa-trash-can", value: 1.5 },
+                { text: "Sik", sub: "Yuksek", icon: "fa-trash-can", value: 2.3 }
+            ]
+        },
+        {
+            category: "Atik",
+            title_student: "Geri donusume ayirma aliskanligi nasil",
+            title_adult: "Evde atik ayirma/geri donusum aliskanligi nasil",
+            options: [
+                { text: "Duzenli ayiririm", sub: "Cok iyi", icon: "fa-recycle", value: 0.1 },
+                { text: "Cogu zaman", sub: "Iyi", icon: "fa-recycle", value: 0.5 },
+                { text: "Bazen", sub: "Orta", icon: "fa-recycle", value: 1.1 },
+                { text: "Nadiren", sub: "Dusuk", icon: "fa-recycle", value: 1.8 }
+            ]
+        },
+        {
+            category: "Atik",
+            title_student: "Tek kullanim plastikleri ne kadar kullaniyorsun",
+            title_adult: "Tek kullanim plastik urun kullanimi ne seviyede",
+            options: [
+                { text: "Neredeyse hic", sub: "Dusuk", icon: "fa-bottle-water", value: 0.2 },
+                { text: "Az", sub: "Iyi", icon: "fa-bottle-water", value: 0.8 },
+                { text: "Orta", sub: "Artabilir", icon: "fa-bottle-water", value: 1.5 },
+                { text: "Yuksek", sub: "Azaltilmali", icon: "fa-bottle-water", value: 2.3 }
+            ]
+        },
+        {
+            category: "Atik",
+            title_student: "Camasir yikamada su sicakligini genelde ne secersin",
+            title_adult: "Camasir yikamada ortalama sicaklik secimin nedir",
+            options: [
+                { text: "30C", sub: "Dusuk enerji", icon: "fa-soap", value: 0.3 },
+                { text: "40C", sub: "Orta", icon: "fa-soap", value: 0.8 },
+                { text: "60C", sub: "Yuksek", icon: "fa-soap", value: 1.4 },
+                { text: "60C ustu", sub: "Cok yuksek", icon: "fa-soap", value: 2.1 }
+            ]
+        },
+        {
+            category: "Atik",
+            title_student: "Dus suresi ortalama ne kadar",
+            title_adult: "Gunluk dus suresi ortalama kac dakika",
+            options: [
+                { text: "5 dk alti", sub: "Dusuk", icon: "fa-shower", value: 0.3 },
+                { text: "5-10 dk", sub: "Orta", icon: "fa-shower", value: 0.9 },
+                { text: "10-15 dk", sub: "Yuksek", icon: "fa-shower", value: 1.6 },
+                { text: "15+ dk", sub: "Cok yuksek", icon: "fa-shower", value: 2.5 }
+            ]
+        },
+        {
+            category: "Atik",
+            title_student: "Yeni kiyafet/ayakkabi alimi ne siklikta",
+            title_adult: "Kiyafet alisverisi ne siklikta yapiyorsun",
+            options: [
+                { text: "Ihtiyac oldukca", sub: "Dusuk", icon: "fa-shirt", value: 0.3 },
+                { text: "Ayda 1", sub: "Orta", icon: "fa-shirt", value: 0.9 },
+                { text: "Ayda 2-3", sub: "Yuksek", icon: "fa-shirt", value: 1.7 },
+                { text: "Haftalik", sub: "Cok yuksek", icon: "fa-shirt", value: 2.8 }
+            ]
+        },
+        {
+            category: "Dijital",
+            title_student: "Gunluk video/streaming suresi ne kadar",
+            title_adult: "Gunluk streaming/video izleme suresi ne kadar",
+            options: [
+                { text: "1 saat alti", sub: "Dusuk", icon: "fa-tv", value: 0.2 },
+                { text: "1-3 saat", sub: "Orta", icon: "fa-tv", value: 0.7 },
+                { text: "3-5 saat", sub: "Yuksek", icon: "fa-tv", value: 1.3 },
+                { text: "5+ saat", sub: "Cok yuksek", icon: "fa-tv", value: 2.1 }
+            ]
+        },
+        {
+            category: "Dijital",
+            title_student: "Telefon/laptop yenileme suresi ne kadar",
+            title_adult: "Elektronik cihazlari ne kadar sik yeniliyorsun",
+            options: [
+                { text: "4+ yil", sub: "Uzun omur", icon: "fa-mobile-screen", value: 0.2 },
+                { text: "2-4 yil", sub: "Orta", icon: "fa-mobile-screen", value: 0.8 },
+                { text: "1-2 yil", sub: "Sik", icon: "fa-mobile-screen", value: 1.6 },
+                { text: "1 yildan az", sub: "Cok sik", icon: "fa-mobile-screen", value: 2.5 }
+            ]
+        },
+        {
+            category: "Dijital",
+            title_student: "Online alisveris teslimatlari haftada kac kez geliyor",
+            title_adult: "Kargo/online siparis teslimati haftada kac kez oluyor",
+            options: [
+                { text: "0-1", sub: "Dusuk", icon: "fa-box", value: 0.2 },
+                { text: "2-3", sub: "Orta", icon: "fa-box", value: 0.8 },
+                { text: "4-5", sub: "Yuksek", icon: "fa-box", value: 1.6 },
+                { text: "6+", sub: "Cok yuksek", icon: "fa-box", value: 2.6 }
+            ]
+        }
+    ];
+
+    let currentStep = 0;
+    let activeEducation = "yetiskin";
+    let activeQuestions = [];
+    let answersByStep = [];
+
+    function educationTitle(level) {
+        const map = {
+            ilkokul: "Ilkokul",
+            ortaokul: "Ortaokul",
+            lise: "Lise",
+            lisans: "Lisans",
+            yetiskin: "Yetiskin"
+        };
+        return map[level] || "Yetiskin";
+    }
+
+    function resolveEducation(level) {
+        const txt = String(level || "").trim().toLowerCase();
+        if (!txt) return "yetiskin";
+        if (txt === "yuksek_lisans") return "lisans";
+        return EDUCATION_LEVELS.has(txt) ? txt : "yetiskin";
+    }
+
+    function questionsForEducation(level) {
+        const useAdult = level === "yetiskin";
+        return QUESTION_BANK.map((q) => ({
+            category: q.category,
+            title: useAdult ? q.title_adult : q.title_student,
+            options: q.options
+        }));
+    }
+
+    function calcTotalScore() {
+        return answersByStep.reduce((sum, row) => sum + Number(row.score || 0), 0);
+    }
+
+    function selectedOptionIndexForStep(step) {
+        const row = answersByStep[step];
+        return Number.isInteger(row.optionIndex) ? row.optionIndex : -1;
+    }
+
+    function renderQuestion(index) {
+        const container = document.getElementById("quizContainer");
+        const q = activeQuestions[index];
+        if (!q) return;
+
+        container.style.animation = "none";
+        container.offsetHeight;
+        container.style.animation = "fadeScale 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
+
+        const selectedIndex = selectedOptionIndexForStep(index);
+        const optionsHTML = q.options.map((opt, optIndex) => `
+                <div class="option-btn ${selectedIndex === optIndex ? "selected" : ""}" onclick="selectAnswer(${optIndex})">
+                <i class="fas ${opt.icon} opt-icon"></i>
+                <span class="opt-text">${opt.text}</span>
+                <span class="opt-sub">${opt.sub}</span>
+            </div>
+        `).join("");
+
+        container.innerHTML = `
+            <span class="q-category">${q.category}</span>
+            <h2 class="q-title">${q.title}</h2>
+            <p style="margin:-26px 0 24px; color:#64748b; font-size:0.95rem;">${EDUCATION_HINTS[activeEducation] || ""}</p>
+            <div class="options-grid">${optionsHTML}</div>
+        `;
+
+        const progress = Math.round((index / activeQuestions.length) * 100);
+        document.getElementById("progressBar").style.width = `${progress}%`;
+        document.getElementById("stepCounter").innerText = String(index + 1);
+        document.getElementById("btnPrev").disabled = (index === 0);
+    }
+
+    function selectAnswer(optionIndex) {
+        const q = activeQuestions[currentStep];
+        const opt = q.options[optionIndex];
+        if (!q || !opt) return;
+
+        answersByStep[currentStep] = {
+            step: currentStep + 1,
+            category: q.category,
+            question: q.title,
+            answer: opt.text,
+            score: Number(opt.value || 0),
+            optionIndex
+        };
+
+        if (currentStep < activeQuestions.length - 1) {
+            currentStep += 1;
+            setTimeout(() => renderQuestion(currentStep), 120);
+            return;
+        }
+        finishQuiz();
+    }
+
+    function prevQuestion() {
+        if (currentStep <= 0) return;
+        currentStep -= 1;
+        renderQuestion(currentStep);
+    }
+
+    function showDailyLock(todayRecord) {
+        document.getElementById("progressBox").style.display = "none";
+        document.getElementById("navBox").style.display = "none";
+        const container = document.getElementById("quizContainer");
+        const s = todayRecord ? Number(todayRecord.score).toFixed(2) : "-";
+        container.innerHTML = `
+            <span class="q-category">Gunluk Limit</span>
+            <h2 class="q-title">Bugun quiz hakkin kullanildi</h2>
+            <p style="color:#6b7280; margin:-20px 0 30px 0;">Bugunku kaydin: <strong>${s} kg CO2e</strong></p>
+            <p style="background:#f3f4f6; padding:16px; border-radius:12px; color:#334155;">
+                Gunde 1 kez analiz yapabilirsin. Yeni quiz yarin acilacak.
+            </p>
+            <a href="/dashboard/home" class="btn btn-primary" style="margin-top: 26px; text-decoration:none; display:inline-block;">Panele Don</a>
+        `;
+    }
+
+    async function finishQuiz() {
+        const totalScore = calcTotalScore();
+        const payloadDetails = answersByStep.map((row) => ({
+            category: row.category,
+            question: row.question,
+            answer: row.answer,
+            score: row.score
+        }));
+
+        document.getElementById("progressBar").style.width = "100%";
+        document.getElementById("progressBox").style.display = "none";
+        document.getElementById("quizContainer").style.display = "none";
+        document.getElementById("navBox").style.display = "none";
+        document.getElementById("resultContainer").style.display = "block";
+
+        const scoreEl = document.getElementById("finalScore");
+        const noteEl = document.getElementById("finalNote");
+        noteEl.innerText = "AI yorumu hazirlaniyor...";
+
+        const duration = 1200;
+        const startTime = performance.now();
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            scoreEl.innerText = (eased * totalScore).toFixed(1);
+            if (progress < 1) requestAnimationFrame(update);
+            else scoreEl.innerText = totalScore.toFixed(1);
+        }
+        requestAnimationFrame(update);
+
+        try {
+            const resp = await fetch("/save_score", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    score: totalScore,
+                    details: payloadDetails,
+                    education_level: activeEducation
+                })
+            });
+            const data = await resp.json().catch(() => ({}));
+
+            if (!resp.ok) {
+                noteEl.innerText = data.message || "Skor kaydedilemedi.";
+                noteEl.style.color = "#dc2626";
+                noteEl.style.background = "#fee2e2";
+                return;
+            }
+
+            noteEl.innerText = data.ai_feedback || "Skor kaydedildi. Yarin yeniden analiz yapabilirsin.";
+            noteEl.style.color = "#065f46";
+            noteEl.style.background = "#ecfdf5";
+        } catch (_) {
+            noteEl.innerText = "Baglanti hatasi nedeniyle AI yorumu alinamadi.";
+            noteEl.style.color = "#b45309";
+            noteEl.style.background = "#fffbeb";
+        }
+    }
+
+    async function bootQuiz() {
+        try {
+            const pResp = await fetch("/profile");
+            if (pResp.ok) {
+                const p = await pResp.json();
+                activeEducation = resolveEducation(p.education_level);
+            }
+        } catch (_) {}
+
+        activeQuestions = questionsForEducation(activeEducation);
+        answersByStep = new Array(activeQuestions.length);
+        document.getElementById("totalQuestions").innerText = String(activeQuestions.length);
+
+        const title = `Karbon Analizi (${educationTitle(activeEducation)})`;
+        document.title = `ECO-ACCESS | ${title}`;
+
+        try {
+            const resp = await fetch("/api/carbon/overview");
+            if (resp.ok) {
+                const ov = await resp.json();
+                if (!ov.can_calculate_today) {
+                    showDailyLock(ov.today_record);
+                    return;
+                }
+            }
+        } catch (_) {}
+
+        renderQuestion(currentStep);
+    }
+
+    bootQuiz();
+</script>
+{% endblock %}

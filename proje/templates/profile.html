@@ -1,0 +1,336 @@
+﻿{% extends "layout.html" %}
+
+{% block title %}Profil{% endblock %}
+{% block header_title %}Profilim{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- PREMIUM KART YAPISI --- */
+    .full-profile-card {
+        background: rgba(255, 255, 255, 0.85); /* Hafif transparan beyaz */
+        backdrop-filter: blur(20px); /* Buzlu cam efekti */
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05); /* Çok yumuşak gölge */
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Kapak Alanı */
+    .hero-cover {
+        height: 280px;
+        background-color: #cbd5e1;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    /* Edit Rozeti (Sa Alt) */
+    .edit-cover-trigger {
+        position: absolute; bottom: 20px; right: 20px;
+        background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
+        color: white; padding: 10px 20px; border-radius: 30px;
+        font-size: 0.85rem; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; gap: 8px;
+        transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .edit-cover-trigger:hover { background: rgba(0, 0, 0, 0.8); transform: scale(1.05); }
+
+    /* Profil Gövdesi */
+    .profile-body {
+        padding: 0 60px 60px 60px;
+        position: relative;
+        margin-top: -90px; /* Avatarı yukarı taşır */
+    }
+
+    /* Avatar */
+    .avatar-area {
+        width: 180px; height: 180px;
+        border-radius: 50%;
+        border: 6px solid #ffffff;
+        background: var(--accent);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        margin-bottom: 30px;
+        transition: 0.3s;
+    }
+    
+    .avatar-edit-overlay {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.4);
+        display: grid; place-items: center; color: white;
+        opacity: 0; transition: 0.3s; cursor: pointer;
+    }
+    .avatar-area:hover .avatar-edit-overlay { opacity: 1; }
+
+    /* --- APPLE STYLE INLINE INPUTS (Sihirli Kısım) --- */
+    
+    /* Ortak Input Stili */
+    .seamless-input {
+        background: transparent;
+        border: 1px solid transparent; /* Kenarlık yok ama yer kaplasın */
+        border-radius: 12px;
+        color: var(--text-dark); /* Yazı her zaman SİYAH ve NET */
+        font-family: inherit;
+        width: 100%;
+        padding: 8px 12px; /* Rahat boşluk */
+        margin-left: -12px; /* Hizayı korumak için */
+        transition: all 0.2s ease-in-out;
+        cursor: text;
+    }
+
+    /* Hover: Üzerine gelince hafif gri olsun (Mac OS stili) */
+    .seamless-input:hover:not(:disabled) {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    /* Focus: Tıklayınca beyaz ve gölgeli olsun */
+    .seamless-input:focus {
+        background-color: #ffffff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        outline: none;
+        color: black;
+    }
+    .seamless-input[readonly] {
+        background-color: rgba(0, 0, 0, 0.04);
+        cursor: not-allowed;
+        opacity: 0.9;
+    }
+
+    /* Özel Tipografi Ayarları */
+    
+    /* 1. Ana Başlık (Görünen Ad) */
+    .input-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        color: #111827; /* Simsiyah */
+    }
+
+    /* 2. Kullanıcı Adı (@username) */
+    .input-username {
+        font-family: 'Manrope', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #6b7280; /* Gri */
+    }
+
+    /* 3. Normal Alanlar (İsim, Doğum Tarihi) */
+    .input-body {
+        font-family: 'Manrope', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937; /* Koyu Gri/Siyah */
+    }
+
+    /* Etiketler (Labels) */
+    .field-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #94a3b8;
+        font-weight: 700;
+        margin-bottom: 2px;
+        display: block;
+    }
+
+    /* Grid Düzeni */
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .field-wrapper { margin-bottom: 10px; }
+
+    /* Uyarı Kutusu */
+    .warning-box {
+        font-size: 0.8rem; color: #dc2626; background: #fef2f2;
+        padding: 8px 12px; border-radius: 8px; display: none; margin-top: 5px; width: fit-content;
+    }
+
+    /* Save Butonu (Floating) */
+    .save-btn-floating {
+        position: fixed; bottom: 40px; right: 40px;
+        background: #111827; color: white; /* Apple Black */
+        padding: 16px 32px; border-radius: 50px;
+        font-weight: 600; font-size: 1rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: none; cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex; align-items: center; gap: 10px;
+        z-index: 900;
+        transform: translateY(150px); /* Gizli */
+        opacity: 0;
+    }
+    .save-btn-floating.visible { transform: translateY(0); opacity: 1; }
+    .save-btn-floating:hover { transform: scale(1.05); background: black; }
+
+    .file-input { display: none; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-body { padding: 30px; margin-top: -60px; }
+        .avatar-area { width: 140px; height: 140px; margin: 0 auto 20px auto; }
+        .input-title { text-align: center; font-size: 2.2rem; }
+        .details-grid { gap: 20px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="full-profile-card">
+    
+    <div class="hero-cover" id="coverContainer">
+        <div id="coverImg" style="width:100%; height:100%; background-size:cover; background-position:center;"></div>
+        <label class="edit-cover-trigger">
+            <i class="fas fa-camera"></i> Kapak Düzenle
+            <input type="file" class="file-input" onchange="uploadFile(this, '/profile/upload/preview')">
+        </label>
+    </div>
+
+    <div class="profile-body">
+        
+        <div class="avatar-area" id="avatarImg">
+            <label class="avatar-edit-overlay">
+                <i class="fas fa-pen fa-lg"></i>
+                <input type="file" class="file-input" onchange="uploadFile(this, '/profile/upload/avatar')">
+            </label>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <input type="text" id="pNick" class="seamless-input input-title" placeholder="Görünen Adınız" oninput="showSaveBtn()">
+            
+            <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                <span style="font-size: 1.2rem; color: #94a3b8; font-weight: 500; padding-left: 12px;">@</span>
+                <input type="text" id="pUsername" class="seamless-input input-username" style="margin-left: -5px; width: auto;" readonly>
+                
+                <span id="dispBadge" style="background:#ecfdf5; color:#047857; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; border:1px solid #d1fae5; margin-left: 10px;">
+                    Rookie
+                </span>
+            </div>
+            
+            <div id="usernameWarning" class="warning-box" style="display:inline-block;">
+                <i class="fas fa-lock"></i> Kullanıcı adı değiştirilemez.
+            </div>
+            <div style="font-size:0.75rem; color:#94a3b8; margin-left: 12px; margin-top: 6px;">* Görünen ad değiştirilebilir. @kullanıcı adı değiştirilemez.</div>
+        </div>
+
+        <div class="details-grid">
+            
+            <div class="field-wrapper">
+                <label class="field-label">Gerçek İsim Soyisim</label>
+                <input type="text" id="pName" class="seamless-input input-body" placeholder="Ad Soyad Giriniz" oninput="showSaveBtn()">
+            </div>
+
+            <div class="field-wrapper">
+                <label class="field-label">Doğum Tarihi</label>
+                <input type="date" id="pDate" class="seamless-input input-body" oninput="showSaveBtn()">
+            </div>
+
+            <div class="field-wrapper">
+                <label class="field-label">Eğitim Durumu</label>
+                <select id="pEdu" class="seamless-input input-body" onchange="showSaveBtn()">
+                    <option value="">Seçiniz</option>
+                    <option value="ilkokul">İlkokul</option>
+                    <option value="ortaokul">Ortaokul</option>
+                    <option value="lise">Lise</option>
+                    <option value="lisans">Lisans</option>
+                    <option value="yetiskin">Yetiskin</option>
+                </select>
+            </div>
+            
+            <div class="field-wrapper">
+                <label class="field-label">İletişim E-Posta</label>
+                <div id="dispEmail" style="padding: 8px 12px; font-size: 1rem; color:#6b7280;">Yükleniyor...</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-left: 12px; margin-top: 4px;">* E-posta Ayarlar sayfasından değişir.</div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<button class="save-btn-floating" id="saveBtn" onclick="saveData()">
+    <i class="fas fa-check"></i> Değişiklikleri Kaydet
+</button>
+
+<div id="status" class="status" style="position:fixed; bottom:100px; right:40px; width:auto; z-index:900; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Profil Verilerini Yükle
+    fetch("/profile").then(r => r.json()).then(p => {
+        // Öncelik: Görünen Ad -> Yoksa Full Name -> Yoksa Username
+        document.getElementById("pNick").value = p.display_name || p.nickname || p.full_name || p.username; 
+        document.getElementById("pUsername").value = p.username;
+        document.getElementById("pName").value = p.full_name || "";
+        document.getElementById("pDate").value = p.birth_date || "";
+        document.getElementById("pEdu").value = p.education_level || "";
+        document.getElementById("dispEmail").innerText = p.email || "-";
+        
+        document.getElementById("dispBadge").innerText = p.badge.name || "Rookie";
+
+        // Resimler
+        if(p.avatar_url) document.getElementById("avatarImg").style.backgroundImage = `url('${p.avatar_url}')`;
+        if(p.preview_media_url) document.getElementById("coverImg").style.backgroundImage = `url('${p.preview_media_url}')`;
+
+    });
+
+    // Değişiklik olunca butonu çıkar
+    function showSaveBtn() {
+        document.getElementById("saveBtn").classList.add("visible");
+    }
+
+    async function uploadFile(input, url) {
+        if(!input.files[0]) return;
+        const fd = new FormData();
+        fd.append("file", input.files[0]);
+        await fetch(url, {method:"POST", body:fd});
+        location.reload();
+    }
+
+    async function saveData() {
+        const btn = document.getElementById("saveBtn");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        const data = {
+            username: document.getElementById("pUsername").value.trim(),
+            display_name: document.getElementById("pNick").value.trim(),
+            full_name: document.getElementById("pName").value.trim(),
+            birth_date: document.getElementById("pDate").value,
+            education_level: document.getElementById("pEdu").value
+        };
+
+        try {
+            const resp = await fetch("/profile", {
+                method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(data)
+            });
+            const res = await resp.json();
+            
+            const st = document.getElementById("status");
+            st.innerText = res.message;
+            st.style.display = "block";
+            st.className = resp.ok ? "status ok" : "status err";
+
+            if(resp.ok) {
+                btn.classList.remove("visible"); // Butonu gizle
+                setTimeout(() => { st.style.display = "none"; }, 3000);
+            }
+        } catch(e) { alert("Hata!"); }
+        
+        btn.innerHTML = '<i class="fas fa-check"></i> Değişiklikleri Kaydet';
+    }
+</script>
+{% endblock %}

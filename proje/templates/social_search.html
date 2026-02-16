@@ -1,0 +1,314 @@
+{% extends "layout.html" %}
+{% block title %}Sosyal Arama{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-page {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 10px 22px 28px;
+    }
+    .search-top {
+        background: #ffffff;
+        border: 1px solid #dbe3ee;
+        border-radius: 8px;
+        padding: 14px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        box-shadow: 0 10px 26px rgba(2, 6, 23, 0.05);
+    }
+    .search-back {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        border-radius: 7px;
+        padding: 10px 12px;
+        cursor: pointer;
+        color: #0f172a;
+    }
+    .search-input {
+        flex: 1;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        padding: 11px 12px;
+        font-size: 0.95rem;
+        font-family: inherit;
+    }
+    .search-btn {
+        border: none;
+        background: #064e3b;
+        color: #fff;
+        border-radius: 7px;
+        padding: 11px 16px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    .search-meta {
+        margin: 10px 2px 0;
+        color: #64748b;
+        font-size: 0.86rem;
+    }
+    .result-grid {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .result-card {
+        background: #fff;
+        border: 1px solid #dbe3ee;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .result-head {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 800;
+        color: #0f172a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .result-list {
+        max-height: 72vh;
+        overflow: auto;
+    }
+    .user-item, .post-item {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .user-item:last-child, .post-item:last-child {
+        border-bottom: none;
+    }
+    .user-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .user-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        background-size: cover;
+        background-position: center;
+        flex: 0 0 auto;
+    }
+    .user-name {
+        color: #0f172a;
+        font-weight: 800;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .user-sub {
+        font-size: 0.84rem;
+        color: #64748b;
+        margin-top: 2px;
+    }
+    .user-tag {
+        margin-left: auto;
+        border: 1px solid #d1fae5;
+        background: #ecfdf5;
+        color: #047857;
+        border-radius: 999px;
+        font-size: 0.73rem;
+        font-weight: 700;
+        padding: 4px 8px;
+    }
+    .post-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1rem;
+        line-height: 1.4;
+        font-weight: 800;
+    }
+    .post-meta {
+        margin-top: 4px;
+        font-size: 0.84rem;
+        color: #64748b;
+    }
+    .post-body {
+        margin-top: 7px;
+        color: #334155;
+        line-height: 1.5;
+        font-size: 0.92rem;
+    }
+    .empty-box {
+        padding: 22px 14px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.92rem;
+    }
+    @media (max-width: 980px) {
+        .search-page {
+            padding: 6px 12px 18px;
+        }
+        .result-grid {
+            grid-template-columns: 1fr;
+        }
+        .search-top {
+            flex-wrap: wrap;
+        }
+        .search-back, .search-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="search-top">
+        <button class="search-back" onclick="goForum()"><i class="fas fa-arrow-left"></i> Foruma Don</button>
+        <input id="searchQ" class="search-input" type="text" placeholder="Kullanici, baslik, mesaj veya yorum ara...">
+        <button class="search-btn" onclick="runSearch()"><i class="fas fa-search"></i> Ara</button>
+    </div>
+    <div id="searchMeta" class="search-meta">Arama ekrani hazir.</div>
+
+    <div class="result-grid">
+        <section class="result-card">
+            <div class="result-head">
+                <span>Kullanicilar</span>
+                <span id="userCount">0</span>
+            </div>
+            <div id="userResults" class="result-list">
+                <div class="empty-box">Arama yapinca kullanicilar burada listelenir.</div>
+            </div>
+        </section>
+
+        <section class="result-card">
+            <div class="result-head">
+                <span>Mesajlar</span>
+                <span id="postCount">0</span>
+            </div>
+            <div id="postResults" class="result-list">
+                <div class="empty-box">Gonderi ve yorum eslesmeleri burada gorunur.</div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function escapeHtml(raw) {
+        return String(raw || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function goForum() {
+        window.location.href = "/dashboard/social";
+    }
+
+    function readQueryFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get("q") || "").trim();
+    }
+
+    function pushQueryToUrl(q) {
+        const params = new URLSearchParams(window.location.search);
+        if (q) params.set("q", q);
+        else params.delete("q");
+        const next = `${window.location.pathname}${params.toString() ? "?" + params.toString() : ""}`;
+        window.history.replaceState({}, "", next);
+    }
+
+    function renderUsers(users) {
+        const box = document.getElementById("userResults");
+        document.getElementById("userCount").innerText = String((users || []).length);
+        if (!users || users.length === 0) {
+            box.innerHTML = `<div class="empty-box">Kullanici bulunamadi.</div>`;
+            return;
+        }
+        box.innerHTML = users.map((row) => {
+            const p = row.profile || {};
+            const displayName = escapeHtml(p.display_name || p.nickname || p.username || "Kullanici");
+            const username = escapeHtml(p.username || "-");
+            const avatar = escapeHtml(p.avatar_url || "");
+            const postsCount = Number(row.posts_count || 0);
+            const badge = escapeHtml((p.badge && p.badge.name) ? p.badge.name : "Rookie");
+            return `
+                <div class="user-item">
+                    <div class="user-row">
+                        <div class="user-avatar" style="background-image:url('${avatar}')"></div>
+                        <div>
+                            <a class="user-name" href="/dashboard/social/user/${Number(row.id || 0)}">${displayName}</a>
+                            <div class="user-sub">@${username} · ${postsCount} mesaj</div>
+                        </div>
+                        <span class="user-tag">${badge}</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function renderPosts(posts) {
+        const box = document.getElementById("postResults");
+        document.getElementById("postCount").innerText = String((posts || []).length);
+        if (!posts || posts.length === 0) {
+            box.innerHTML = `<div class="empty-box">Mesaj bulunamadi.</div>`;
+            return;
+        }
+        box.innerHTML = posts.map((row) => {
+            const title = escapeHtml(row.title || "Baslik yok");
+            const body = escapeHtml(row.content_preview || "");
+            const author = row.author || {};
+            const by = escapeHtml(author.display_name || author.nickname || author.username || "Kullanici");
+            const dateTxt = row.created_at ? new Date(row.created_at).toLocaleDateString() : "-";
+            return `
+                <div class="post-item">
+                    <h3 class="post-title">${title}</h3>
+                    <div class="post-meta">${by} · ${escapeHtml(dateTxt)}</div>
+                    <div class="post-body">${body}</div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    async function runSearch() {
+        const input = document.getElementById("searchQ");
+        const meta = document.getElementById("searchMeta");
+        const q = (input.value || "").trim();
+        pushQueryToUrl(q);
+        meta.innerText = q ? `Araniyor: "${q}"` : "Tum kullanicilar ve son mesajlar listeleniyor...";
+
+        const params = new URLSearchParams();
+        if (q) params.set("q", q);
+        params.set("user_limit", "40");
+        params.set("post_limit", "40");
+        const resp = await fetch(`/api/social/search?${params.toString()}`);
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            meta.innerText = data.message || "Arama sirasinda hata olustu.";
+            renderUsers([]);
+            renderPosts([]);
+            return;
+        }
+        renderUsers(data.users || []);
+        renderPosts(data.posts || []);
+        meta.innerText = `${(data.counts && data.counts.users) || 0} kullanici, ${(data.counts && data.counts.posts) || 0} mesaj bulundu.`;
+    }
+
+    let searchTimer = null;
+    document.getElementById("searchQ").addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(runSearch, 280);
+    });
+    document.getElementById("searchQ").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            runSearch();
+        }
+    });
+
+    (function boot() {
+        const q = readQueryFromUrl();
+        document.getElementById("searchQ").value = q;
+        runSearch();
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,1948 @@
+{% extends "layout.html" %}
+{% block title %}Sosyal{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- ECO-ACCESS ARAMA ÇUBUĞU --- */
+    .search-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+    }
+    .search-input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border-radius: 8px;
+        border: 1px solid #dbe3ee;
+        background: #f8fafc;
+        font-family: 'Manrope', sans-serif;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+    .search-input:focus {
+        background: white;
+        box-shadow: 0 4px 15px rgba(6, 78, 59, 0.1);
+        border-color: #064e3b;
+    }
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+        transition: 0.3s;
+    }
+    .search-input:focus + .search-icon { color: #064e3b; }
+
+    /* --- FORUM KART TASARIMI (Hover) --- */
+    .hover-card {
+        position: fixed; display: none; z-index: 10000;
+        width: 380px; background: #1e293b; color: white;
+        border-radius: 6px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        overflow: hidden; border: 1px solid #334155;
+        font-family: 'Segoe UI', sans-serif; pointer-events: auto;
+        animation: fadeScale 0.2s ease-out;
+    }
+    @keyframes fadeScale { from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
+    .hc-header { height: 100px; background-color: #0f172a; background-size: cover; background-position: center; }
+    .hc-body { padding: 0 20px 20px 20px; position: relative; }
+    .hc-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #1e293b; background-color: #334155; background-size: cover; background-position: center; position: absolute; top: -45px; left: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .hc-info { margin-left: 110px; padding-top: 10px; }
+    .hc-name { font-size: 1.4rem; font-weight: 700; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hc-user { font-size: 0.9rem; color: #94a3b8; display: block; margin-bottom: 5px; }
+    .hc-badge { display: inline-block; background: #064e3b; color: #ecfdf5; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+    .hc-stats { display: flex; border-top: 1px solid #334155; background: #0f172a; margin-top: 15px; }
+    .hc-stat-item { flex: 1; text-align: center; padding: 12px 5px; border-right: 1px solid #334155; }
+    .hc-stat-item:last-child { border-right: none; }
+    .hc-stat-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px; }
+    .hc-stat-val { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; }
+    .hc-actions { padding: 15px 20px; display: flex; gap: 10px; background: #1e293b; }
+    .hc-btn { flex: 1; padding: 8px; border: 1px solid #475569; background: transparent; color: #e2e8f0; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
+    .hc-btn.primary { background: #2563eb; border-color: #2563eb; color: white; }
+
+    /* --- ECO YORUM TASARIMI (Root Style) --- */
+    .post-comments {
+        margin-top: 15px;
+        padding-left: 20px; /* Dallar için boşluk */
+        display: none;
+        position: relative;
+    }
+    
+    /* Ana dal çizgisi */
+    .post-comments::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 20px;
+        width: 2px; background: linear-gradient(to bottom, #dbeafe 0%, #059669 100%);
+        opacity: 0.5;
+    }
+
+    .comment-item {
+        position: relative;
+        margin-bottom: 15px;
+        background: #fcfdfd;
+        border: 1px solid #eef2f6;
+        border-radius: 6px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        transition: 0.2s;
+    }
+    
+    .comment-item:hover { border-color: #d1fae5; background: #f0fdf4; }
+
+    /* Yan dal çizgisi */
+    .comment-item::before {
+        content: ""; position: absolute; left: -20px; top: 20px;
+        width: 20px; height: 2px; background: #dbeafe;
+    }
+    .comment-item::after {
+        content: ""; position: absolute; left: -24px; top: 16px;
+        width: 8px; height: 8px; background: #059669; border-radius: 50%;
+    }
+
+    .comment-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 5px;
+    }
+    .comment-head-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .comment-author { font-weight: 700; color: #064e3b; text-decoration: none; }
+    .comment-text { color: #334155; line-height: 1.5; font-size: 0.95rem; }
+    .comment-node.is-reply { margin-top: 10px; }
+    .comment-item.comment-item-reply { background: #ffffff; border-color: #dbeafe; }
+    .comment-children {
+        margin-top: 10px;
+        margin-left: 18px;
+        padding-left: 12px;
+        border-left: 2px solid #dbeafe;
+    }
+    .comment-reply-to {
+        margin-bottom: 6px;
+        color: #334155;
+        opacity: 0.8;
+        font-size: 0.78rem;
+        font-weight: 500;
+    }
+    .comment-actions {
+        margin-top: 8px;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+    }
+    .comment-inline-link {
+        border: none;
+        background: transparent;
+        color: #111827;
+        opacity: 0.78;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 500;
+        padding: 0;
+        line-height: 1.2;
+    }
+    .comment-inline-link:hover {
+        opacity: 1;
+        text-decoration: underline;
+    }
+    .comment-inline-link.danger {
+        color: #b91c1c;
+        opacity: 0.88;
+    }
+    .comment-menu {
+        position: relative;
+    }
+    .comment-menu > summary {
+        list-style: none;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #334155;
+    }
+    .comment-menu > summary::-webkit-details-marker { display: none; }
+    .comment-menu > summary:hover { background: #f1f5f9; }
+    .comment-menu-panel {
+        position: absolute;
+        top: 24px;
+        right: 0;
+        min-width: 110px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+        z-index: 30;
+    }
+    .comment-menu-item {
+        width: 100%;
+        border: none;
+        background: #fff;
+        text-align: left;
+        padding: 8px 10px;
+        font-size: 0.84rem;
+        color: #1f2937;
+        cursor: pointer;
+    }
+    .comment-menu-item:hover { background: #f8fafc; }
+    .comment-menu-item.danger { color: #b91c1c; }
+    .comment-reply-editor {
+        margin-top: 10px;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        background: #f8fbff;
+        padding: 8px;
+    }
+    .comment-reply-hint {
+        font-size: 0.78rem;
+        color: #334155;
+        opacity: 0.85;
+    }
+    .comment-reply-row {
+        margin-top: 6px;
+        display: flex;
+        gap: 8px;
+    }
+    .comment-reply-input {
+        flex: 1;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+        background: #fff;
+    }
+    .comment-reply-send {
+        width: 38px;
+        border: none;
+        border-radius: 6px;
+        background: #064e3b;
+        color: #fff;
+        cursor: pointer;
+    }
+    .comment-reply-tools {
+        margin-top: 6px;
+        display: flex;
+        gap: 8px;
+    }
+    .comment-compose-tools {
+        margin-top: 6px;
+        display: flex;
+        gap: 8px;
+    }
+    .comment-tool-btn {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #0ea5e9;
+        border-radius: 6px;
+        min-width: 38px;
+        height: 34px;
+        padding: 0 10px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+    .comment-attach-preview {
+        display: none;
+        margin-top: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 8px;
+    }
+    .comment-attach-thumb {
+        width: 100%;
+        max-height: 240px;
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+    }
+    .comment-attach-file {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+    .comment-attach-remove {
+        margin-top: 8px;
+        border: none;
+        background: transparent;
+        color: #dc2626;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 0;
+    }
+    .comment-attachment {
+        margin-top: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+    .comment-attachment img {
+        width: 100%;
+        max-height: 340px;
+        object-fit: cover;
+        display: block;
+    }
+    .comment-attachment-file {
+        margin-top: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 8px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+    }
+    .comment-attachment-file a {
+        color: #1f2937;
+        text-decoration: none;
+        font-weight: 700;
+    }
+    .comment-compose {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+    }
+    .comment-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+    }
+    .comment-send-btn {
+        background: #064e3b;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        width: 40px;
+        cursor: pointer;
+    }
+
+    /* --- GÖNDERİ STİLİ --- */
+    .forum-container { max-width: 1420px; margin: 0 auto; padding: 20px 22px; }
+    .forum-layout {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 780px) 300px;
+        gap: 18px;
+        justify-content: center;
+        align-items: start;
+    }
+    .forum-left,
+    .forum-right {
+        position: sticky;
+        top: 88px;
+    }
+    .forum-main {
+        min-width: 0;
+        width: 100%;
+    }
+    .forum-left .brand-card {
+        background: #fff;
+        border: 1px solid #dbe3ee;
+        border-radius: 6px;
+        padding: 14px 12px;
+    }
+    .brand-title {
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        letter-spacing: 0.03em;
+        color: #064e3b;
+        font-size: 1.3rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+    .brand-sub {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.35;
+    }
+    .forum-right {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .search-card, .right-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 14px;
+        box-shadow: 0 8px 24px rgba(2, 6, 23, 0.04);
+    }
+    .search-title {
+        margin: 0 0 10px 0;
+        color: #0f172a;
+        font-size: 0.95rem;
+        font-weight: 800;
+    }
+    .search-help {
+        margin: 10px 2px 0;
+        color: #64748b;
+        font-size: 0.84rem;
+        line-height: 1.35;
+    }
+    .composer { background: #fff; padding: 20px; border-radius: 0; margin-bottom: 0; border: 1px solid #dbe3ee; border-top: none; border-bottom: none; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+    .composer input, .composer textarea, .composer select { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 12px; font-family: inherit; background: #f8fafc; }
+    .composer input:focus, .composer textarea:focus { background: white; border-color: #064e3b; outline: none; }
+    
+    .btn { background: #064e3b; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+    .btn:hover { background: #043f30; transform: translateY(-2px); }
+
+    #feed {
+        border: none;
+        border-radius: 0 0 6px 6px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .feed-empty {
+        text-align: center;
+        padding: 40px;
+        color: #94a3b8;
+        border: 1px solid #bfdbfe;
+        border-radius: 0 0 6px 6px;
+        background: #fff;
+    }
+    .post-card {
+        background: white;
+        padding: 25px;
+        border-radius: 0;
+        margin-bottom: 0;
+        box-shadow: none;
+        border-left: 1px solid #bfdbfe;
+        border-right: 1px solid #bfdbfe;
+        border-bottom: 1px solid #bfdbfe;
+        border-top: none;
+        position: relative;
+    }
+    .post-card:first-child { border-top: 1px solid #bfdbfe; }
+    .post-card:last-child { border-radius: 0 0 6px 6px; }
+    .author-link { font-weight: 700; color: #0f172a; text-decoration: none; cursor: pointer; font-size: 1.1rem; }
+    .author-link:hover { color: #064e3b; text-decoration: underline; }
+    .post-meta { font-size: 0.85rem; color: #94a3b8; margin-top: 2px; }
+    .post-content { margin-top: 15px; line-height: 1.7; color: #334155; font-size: 1.05rem; }
+    .post-actions { margin-top: 15px; display: flex; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
+    .action-btn { background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 6px; transition: 0.2s; }
+    .action-btn:hover { background: #f1f5f9; color: #064e3b; }
+    .action-btn.active { color: #ef4444; }
+    .action-btn.delete-btn { color: #dc2626; }
+    .action-btn.delete-btn:hover { background: #fee2e2; color: #b91c1c; }
+
+    .forum-header-row { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 16px; }
+    .feed-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid #dbe3ee;
+        border-radius: 6px 6px 0 0;
+        overflow: hidden;
+        margin-bottom: 0;
+        background: #fff;
+    }
+    .feed-tab {
+        border: none;
+        background: #fff;
+        color: #475569;
+        font-weight: 800;
+        font-size: 1rem;
+        padding: 12px 10px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+    }
+    .feed-tab + .feed-tab { border-left: 1px solid #dbe3ee; }
+    .feed-tab.active {
+        color: #0f172a;
+        border-bottom-color: #0ea5e9;
+        background: #f8fafc;
+    }
+    .composer-tools {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 6px;
+    }
+    .tool-btn {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #0ea5e9;
+        border-radius: 6px;
+        min-width: 40px;
+        height: 36px;
+        padding: 0 12px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+    .compose-attach-preview {
+        margin-top: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #f8fafc;
+        padding: 8px;
+        display: none;
+    }
+    .attach-thumb {
+        width: 100%;
+        max-height: 320px;
+        object-fit: cover;
+        border-radius: 6px;
+        display: block;
+    }
+    .attach-file-chip {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        color: #334155;
+        font-size: 0.9rem;
+    }
+    .attach-remove {
+        border: none;
+        background: transparent;
+        color: #ef4444;
+        cursor: pointer;
+        font-weight: 700;
+        margin-top: 8px;
+        padding: 0;
+    }
+    .compose-status {
+        margin-top: 8px;
+        font-size: 0.86rem;
+        color: #64748b;
+    }
+    .gif-quick-wrap {
+        margin-top: 10px;
+        border: 1px solid #dbe3ee;
+        border-radius: 6px;
+        background: #f8fafc;
+        padding: 8px;
+        display: none;
+    }
+    .gif-quick-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+    .gif-quick-row {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+    .gif-quick-item {
+        width: 58px;
+        height: 58px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #fff;
+        flex: 0 0 auto;
+    }
+    .gif-quick-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .gif-fav-manage-btn {
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        padding: 4px 8px;
+        color: #0f172a;
+        cursor: pointer;
+    }
+    .gif-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 11000;
+        display: none;
+    }
+    .gif-modal.is-open {
+        display: block;
+    }
+    .gif-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+    }
+    .gif-modal-card {
+        position: relative;
+        width: min(860px, calc(100vw - 30px));
+        max-height: min(82vh, 860px);
+        margin: 44px auto 0;
+        background: #fff;
+        border: 1px solid #dbe3ee;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.28);
+    }
+    .gif-modal-head {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 12px;
+    }
+    .gif-modal-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 0.95rem;
+        margin-right: auto;
+    }
+    .gif-modal-close {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        border-radius: 6px;
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+        color: #334155;
+    }
+    .gif-modal-search {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+        max-width: 280px;
+    }
+    .gif-modal-tabs {
+        display: flex;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+    .gif-tab-btn {
+        border: none;
+        background: transparent;
+        padding: 10px 14px;
+        cursor: pointer;
+        color: #475569;
+        font-weight: 700;
+        border-bottom: 2px solid transparent;
+    }
+    .gif-tab-btn.active {
+        color: #0f172a;
+        border-bottom-color: #0ea5e9;
+        background: #fff;
+    }
+    .gif-modal-body {
+        overflow: auto;
+        padding: 10px;
+    }
+    .gif-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    .gif-item {
+        border: 1px solid #dbe3ee;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .gif-item-thumb {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+        background: #e2e8f0;
+    }
+    .gif-item-actions {
+        display: flex;
+        gap: 6px;
+        padding: 6px;
+    }
+    .gif-action {
+        flex: 1;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        border-radius: 6px;
+        padding: 6px 8px;
+        cursor: pointer;
+        font-size: 0.78rem;
+        color: #0f172a;
+        font-weight: 700;
+    }
+    .gif-action.favorite.active {
+        border-color: #f59e0b;
+        color: #b45309;
+        background: #fffbeb;
+    }
+    .gif-modal-empty {
+        padding: 20px 8px;
+        color: #64748b;
+        text-align: center;
+    }
+    .post-attachment {
+        margin-top: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+    .post-attachment img {
+        width: 100%;
+        max-height: 440px;
+        object-fit: cover;
+        display: block;
+    }
+    .post-attachment-file {
+        margin-top: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .post-attachment-file a {
+        color: #0f172a;
+        text-decoration: none;
+        font-weight: 700;
+    }
+    @media (max-width: 1200px) {
+        .forum-layout {
+            grid-template-columns: 150px minmax(0, 700px) 280px;
+        }
+    }
+    @media (max-width: 980px) {
+        .forum-container {
+            padding: 12px 10px 24px;
+        }
+        .forum-layout {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+        }
+        .forum-left,
+        .forum-right {
+            position: static;
+        }
+        .forum-left {
+            display: none;
+        }
+        .forum-right {
+            order: 1;
+        }
+        .forum-main {
+            order: 0;
+        }
+        .search-card, .right-card {
+            border-radius: 10px;
+        }
+        .feed-tabs {
+            border-radius: 10px 10px 0 0;
+        }
+        .composer {
+            padding: 14px;
+        }
+        .post-card {
+            padding: 16px 14px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .forum-container {
+            padding: 8px 6px 20px;
+        }
+        .feed-tab {
+            font-size: 0.95rem;
+            padding: 10px 8px;
+        }
+        .composer input, .composer textarea, .composer select {
+            padding: 11px 10px;
+            margin-bottom: 10px;
+        }
+        .post-content {
+            font-size: 0.98rem;
+            line-height: 1.55;
+        }
+        .post-actions {
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            font-size: 0.84rem;
+            padding: 4px 8px;
+        }
+        .comment-compose {
+            flex-direction: column;
+        }
+        .comment-send-btn {
+            width: 100%;
+            height: 38px;
+        }
+        .gif-modal-card {
+            width: calc(100vw - 12px);
+            margin-top: 14px;
+            max-height: 84vh;
+        }
+        .gif-modal-head {
+            flex-wrap: wrap;
+        }
+        .gif-modal-search {
+            max-width: none;
+            flex: 1 1 220px;
+        }
+    }
+
+    @media (hover: none) {
+        .hover-card {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="forum-container">
+    <div class="forum-layout">
+        <aside class="forum-left">
+            <div class="brand-card">
+                <h2 class="brand-title">ECCO ACCESS</h2>
+                <div class="brand-sub">Sosyal akista kullanici, mesaj ve yorumlari kesfet.</div>
+            </div>
+        </aside>
+
+        <main class="forum-main">
+            <div class="feed-tabs">
+                <button id="tabForYou" class="feed-tab active" onclick="setFeedMode('for_you')">Sizin icin</button>
+                <button id="tabFollowing" class="feed-tab" onclick="setFeedMode('following')">Takip edilen</button>
+            </div>
+
+            <div class="composer">
+                <input id="postTitle" placeholder="Konu Basligi (Orn: Evde Kompost Yapimi)">
+                <textarea id="postContent" rows="3" placeholder="Fikirlerini filizlendir..."></textarea>
+                <div id="composeAttachPreview" class="compose-attach-preview"></div>
+                <div class="composer-tools">
+                    <button type="button" class="tool-btn" onclick="triggerAttach('photo')" title="Fotograf ekle"><i class="far fa-image"></i></button>
+                    <button type="button" class="tool-btn" onclick="triggerAttach('gif')" title="Giphy GIF sec">GIF</button>
+                    <button type="button" class="tool-btn" onclick="triggerAttach('file')" title="Dosya ekle"><i class="far fa-file"></i></button>
+                </div>
+                <div id="composeGifQuickWrap" class="gif-quick-wrap">
+                    <div class="gif-quick-head">
+                        <span>Favori GIF</span>
+                        <button type="button" class="gif-fav-manage-btn" onclick="openGifPicker({scope:'post'})">Yonet</button>
+                    </div>
+                    <div id="composeGifQuickRow" class="gif-quick-row"></div>
+                </div>
+                <input type="file" id="photoInput" accept=".png,.jpg,.jpeg,.webp" style="display:none;" onchange="pickAttachment('photo', this)">
+                <input type="file" id="gifInput" accept=".gif" style="display:none;" onchange="pickAttachment('gif', this)">
+                <input type="file" id="fileInput" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.zip,.rar,.7z" style="display:none;" onchange="pickAttachment('file', this)">
+                <div style="text-align: right;">
+                    <button class="btn" onclick="sendPost()"><i class="fas fa-paper-plane"></i> Paylas</button>
+                </div>
+                <div id="composeStatus" class="compose-status">Yazi, fotograf, GIF veya dosya paylasabilirsin.</div>
+            </div>
+
+            <div id="feed">
+                <div class="feed-empty">Yukleniyor...</div>
+            </div>
+        </main>
+
+        <aside class="forum-right">
+            <div class="search-card">
+                <h3 class="search-title">Ara</h3>
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Kullanici, baslik veya yorum ara..." readonly onclick="openSearchScreen()" onfocus="openSearchScreen()">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="search-help">Arama ekranini acmak icin kutuya tikla. Mesaj atmayan kullanicilar da bulunur.</div>
+            </div>
+
+            <div class="right-card">
+                <h3 class="search-title" style="margin-bottom:6px;">Ipucu</h3>
+                <div class="search-help" style="margin-top:0;">
+                    Daha iyi sonuc icin kisa anahtar kelime kullan:
+                    <strong>#ulasim</strong>, <strong>elektrik</strong>, <strong>geri donusum</strong>.
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="hoverCard" class="hover-card">
+    <div id="hcHeader" class="hc-header"></div> 
+    <div class="hc-body">
+        <div id="hcAvatar" class="hc-avatar"></div> 
+        <div class="hc-info">
+            <span id="hcName" class="hc-name">Kullanıcı</span>
+            <span id="hcUser" class="hc-user">@kullanici</span>
+            <span id="hcBadge" class="hc-badge">Rookie</span>
+        </div>
+    </div>
+    <div class="hc-stats">
+        <div class="hc-stat-item">
+            <span class="hc-stat-label">Mesajlar</span>
+            <span id="hcPosts" class="hc-stat-val">0</span>
+        </div>
+        <div class="hc-stat-item">
+            <span class="hc-stat-label">Puan</span>
+            <span id="hcScore" class="hc-stat-val">0</span>
+        </div>
+        <div class="hc-stat-item">
+            <span class="hc-stat-label">Karbon</span>
+            <span id="hcCarbon" class="hc-stat-val">0.0</span>
+        </div>
+    </div>
+    <div class="hc-actions">
+        <a id="hcLink" href="#" class="hc-btn primary">Takip Et</a>
+        <a id="hcProfile" href="#" class="hc-btn">Profili Gör</a>
+    </div>
+</div>
+
+<div id="gifPickerModal" class="gif-modal" aria-hidden="true">
+    <div class="gif-modal-backdrop" onclick="closeGifPicker()"></div>
+    <div class="gif-modal-card">
+        <div class="gif-modal-head">
+            <div class="gif-modal-title">Giphy GIF Sec</div>
+            <input id="gifSearchInput" class="gif-modal-search" type="text" placeholder="GIF ara..." onkeydown="if(event.key==='Enter'){event.preventDefault(); searchGifPicker();}">
+            <button type="button" class="gif-action" onclick="searchGifPicker()">Ara</button>
+            <button type="button" class="gif-modal-close" onclick="closeGifPicker()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="gif-modal-tabs">
+            <button id="gifTabSearch" type="button" class="gif-tab-btn active" onclick="setGifPickerTab('search')">Kesfet</button>
+            <button id="gifTabFav" type="button" class="gif-tab-btn" onclick="setGifPickerTab('favorites')">Favoriler</button>
+        </div>
+        <div class="gif-modal-body">
+            <div id="gifPickerGrid" class="gif-grid"></div>
+            <div id="gifPickerEmpty" class="gif-modal-empty" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let searchTimeout;
+    let activeSearch = "";
+    let activeFeedMode = "for_you";
+    let composeAttachment = null;
+    let composeAttachmentKind = "";
+    let composeGiphyGif = null;
+    const photoExt = new Set(["png", "jpg", "jpeg", "webp"]);
+    const gifExt = new Set(["gif"]);
+    const fileExt = new Set(["pdf", "txt", "doc", "docx", "xls", "xlsx", "csv", "ppt", "pptx", "zip", "rar", "7z"]);
+    const commentsCacheByPost = {};
+    const activeReplyByPost = {};
+    const expandedRepliesByComment = {};
+    const commentById = {};
+    const commentAttachmentByPost = {};
+    const replyAttachmentByKey = {};
+    const giphyPickerState = {
+        open: false,
+        tab: "search",
+        target: { scope: "post" },
+        items: [],
+        favorites: [],
+        loading: false,
+        query: ""
+    };
+
+    function escapeHtml(raw) {
+        return String(raw || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function normalizeGifItem(raw) {
+        if (!raw) return null;
+        const gifId = String(raw.gif_id || raw.id || "").trim();
+        const gifUrl = String(raw.gif_url || raw.url || "").trim();
+        const previewUrl = String(raw.preview_url || raw.preview || gifUrl).trim();
+        if (!gifId || !gifUrl) return null;
+        return {
+            gif_id: gifId,
+            title: String(raw.title || `Giphy GIF ${gifId}`).trim(),
+            gif_url: gifUrl,
+            preview_url: previewUrl,
+            width: Number(raw.width || 0) || 0,
+            height: Number(raw.height || 0) || 0
+        };
+    }
+
+    function replyAttachKey(postId, parentCommentId) {
+        return `${Number(postId)}:${Number(parentCommentId)}`;
+    }
+
+    function getCommentAttachment(postId, parentCommentId = 0) {
+        const pid = Number(postId);
+        const cid = Number(parentCommentId || 0);
+        if (cid > 0) return replyAttachmentByKey[replyAttachKey(pid, cid)] || null;
+        return commentAttachmentByPost[pid] || null;
+    }
+
+    function setCommentAttachment(postId, parentCommentId, payload) {
+        const pid = Number(postId);
+        const cid = Number(parentCommentId || 0);
+        if (cid > 0) {
+            replyAttachmentByKey[replyAttachKey(pid, cid)] = payload;
+            return;
+        }
+        commentAttachmentByPost[pid] = payload;
+    }
+
+    function clearCommentAttachment(postId, parentCommentId = 0) {
+        const pid = Number(postId);
+        const cid = Number(parentCommentId || 0);
+        if (cid > 0) {
+            delete replyAttachmentByKey[replyAttachKey(pid, cid)];
+        } else {
+            delete commentAttachmentByPost[pid];
+        }
+        const boxId = cid > 0 ? `reply-attach-preview-${pid}-${cid}` : `comment-attach-preview-${pid}`;
+        const box = document.getElementById(boxId);
+        if (box) {
+            box.style.display = "none";
+            box.innerHTML = "";
+        }
+        const prefix = cid > 0 ? `reply` : `comment`;
+        ["photo", "gif", "file"].forEach(kind => {
+            const inputId = cid > 0
+                ? `${prefix}-${kind}-${pid}-${cid}`
+                : `${prefix}-${kind}-${pid}`;
+            const input = document.getElementById(inputId);
+            if (input) input.value = "";
+        });
+    }
+
+    function renderCommentAttachmentPreview(postId, parentCommentId = 0) {
+        const pid = Number(postId);
+        const cid = Number(parentCommentId || 0);
+        const boxId = cid > 0 ? `reply-attach-preview-${pid}-${cid}` : `comment-attach-preview-${pid}`;
+        const box = document.getElementById(boxId);
+        if (!box) return;
+
+        const attachment = getCommentAttachment(pid, cid);
+        if (!attachment) {
+            box.style.display = "none";
+            box.innerHTML = "";
+            return;
+        }
+
+        if (attachment.source === "giphy" && attachment.gif) {
+            const gif = attachment.gif;
+            const safeNameGif = escapeHtml(gif.title || "Giphy GIF");
+            const safeUrlGif = escapeHtml(gif.preview_url || gif.gif_url || "");
+            box.style.display = "block";
+            box.innerHTML = `
+                <img class="comment-attach-thumb" src="${safeUrlGif}" alt="${safeNameGif}" loading="lazy">
+                <div class="comment-attach-file" style="margin-top:8px;"><i class="far fa-image"></i> ${safeNameGif}</div>
+                <button type="button" class="comment-attach-remove" onclick="clearCommentAttachment(${pid}, ${cid})">Eki kaldir</button>
+            `;
+            return;
+        }
+
+        if (!attachment.file) {
+            box.style.display = "none";
+            box.innerHTML = "";
+            return;
+        }
+
+        const safeName = escapeHtml(attachment.file.name || "Ek");
+        const removeBtn = `<button type="button" class="comment-attach-remove" onclick="clearCommentAttachment(${pid}, ${cid})">Eki kaldır</button>`;
+
+        if (attachment.kind === "photo" || attachment.kind === "gif") {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                box.style.display = "block";
+                box.innerHTML = `
+                    <img class="comment-attach-thumb" src="${evt.target.result || ""}" alt="${safeName}">
+                    <div class="comment-attach-file" style="margin-top:8px;"><i class="far fa-image"></i> ${safeName}</div>
+                    ${removeBtn}
+                `;
+            };
+            reader.readAsDataURL(attachment.file);
+            return;
+        }
+
+        box.style.display = "block";
+        box.innerHTML = `
+            <div class="comment-attach-file"><i class="far fa-file"></i> ${safeName}</div>
+            ${removeBtn}
+        `;
+    }
+
+    function triggerCommentAttach(postId, parentCommentId, kind) {
+        if (kind === "gif") {
+            openGifPicker({
+                scope: "comment",
+                postId: Number(postId),
+                parentCommentId: Number(parentCommentId || 0)
+            });
+            return;
+        }
+        const pid = Number(postId);
+        const cid = Number(parentCommentId || 0);
+        const inputId = cid > 0 ? `reply-${kind}-${pid}-${cid}` : `comment-${kind}-${pid}`;
+        const input = document.getElementById(inputId);
+        if (input) input.click();
+    }
+
+    function pickCommentAttachment(postId, parentCommentId, kind, input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const ext = fileExtension(file.name);
+        let allowed = false;
+        if (kind === "photo") allowed = photoExt.has(ext);
+        if (kind === "gif") allowed = gifExt.has(ext);
+        if (kind === "file") allowed = fileExt.has(ext);
+        if (!allowed) {
+            alert("Sadece fotograf, GIF ve dosya turleri destekleniyor.");
+            input.value = "";
+            return;
+        }
+        setCommentAttachment(postId, parentCommentId, { file, kind });
+        renderCommentAttachmentPreview(postId, parentCommentId);
+    }
+
+    function renderCommentAttachment(att) {
+        if (!att || !att.url) return "";
+        const safeUrl = escapeHtml(att.url);
+        const safeName = escapeHtml(att.name || "Ek");
+        if (att.kind === "image" || att.kind === "gif") {
+            return `<div class="comment-attachment"><img src="${safeUrl}" alt="${safeName}" loading="lazy"></div>`;
+        }
+        return `<div class="comment-attachment-file"><i class="far fa-file"></i><a href="${safeUrl}" target="_blank" rel="noopener" download>${safeName}</a></div>`;
+    }
+
+    function commentStateKey(postId, commentId) {
+        return `${Number(postId)}:${Number(commentId)}`;
+    }
+
+    function isReplyComposerOpen(postId, commentId) {
+        return Number(activeReplyByPost[Number(postId)] || 0) === Number(commentId);
+    }
+
+    function isRepliesExpanded(postId, commentId) {
+        return !!expandedRepliesByComment[commentStateKey(postId, commentId)];
+    }
+
+    function toggleReplyComposer(postId, commentId) {
+        const pid = Number(postId);
+        const cid = Number(commentId);
+        const previous = Number(activeReplyByPost[pid] || 0);
+        if (isReplyComposerOpen(pid, cid)) {
+            delete activeReplyByPost[pid];
+            clearCommentAttachment(pid, cid);
+        } else {
+            activeReplyByPost[pid] = cid;
+            if (previous && previous !== cid) clearCommentAttachment(pid, previous);
+        }
+        renderCommentsFromCache(pid);
+        if (isReplyComposerOpen(pid, cid)) {
+            setTimeout(() => {
+                const input = document.getElementById(`reply-input-${pid}-${cid}`);
+                if (input) input.focus();
+                renderCommentAttachmentPreview(pid, cid);
+            }, 0);
+        }
+    }
+
+    function clearReplyComposer(postId) {
+        const pid = Number(postId);
+        const activeCommentId = Number(activeReplyByPost[pid] || 0);
+        if (activeCommentId > 0) {
+            clearCommentAttachment(pid, activeCommentId);
+        }
+        delete activeReplyByPost[pid];
+        renderCommentsFromCache(pid);
+    }
+
+    function toggleReplies(postId, commentId) {
+        const key = commentStateKey(postId, commentId);
+        expandedRepliesByComment[key] = !expandedRepliesByComment[key];
+        renderCommentsFromCache(postId);
+    }
+
+    function renderFeedTabs() {
+        const forYou = document.getElementById("tabForYou");
+        const following = document.getElementById("tabFollowing");
+        const isFollowing = activeFeedMode === "following";
+        if (forYou) forYou.classList.toggle("active", !isFollowing);
+        if (following) following.classList.toggle("active", isFollowing);
+    }
+
+    function setFeedMode(mode) {
+        const m = mode === "following" ? "following" : "for_you";
+        if (activeFeedMode === m) return;
+        activeFeedMode = m;
+        renderFeedTabs();
+        loadFeed();
+    }
+
+    function fileExtension(name) {
+        const n = String(name || "").trim().toLowerCase();
+        const i = n.lastIndexOf(".");
+        return i >= 0 ? n.slice(i + 1) : "";
+    }
+
+    function triggerAttach(kind) {
+        if (kind === "gif") {
+            openGifPicker({ scope: "post" });
+            return;
+        }
+        const map = { photo: "photoInput", file: "fileInput" };
+        const id = map[kind];
+        const el = document.getElementById(id);
+        if (el) el.click();
+    }
+
+    function clearAttachment() {
+        composeAttachment = null;
+        composeAttachmentKind = "";
+        composeGiphyGif = null;
+        const box = document.getElementById("composeAttachPreview");
+        if (box) {
+            box.style.display = "none";
+            box.innerHTML = "";
+        }
+        ["photoInput", "gifInput", "fileInput"].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.value = "";
+        });
+    }
+
+    function renderComposeAttachmentPreview() {
+        const box = document.getElementById("composeAttachPreview");
+        if (!box) return;
+        if (!composeAttachment && !composeGiphyGif) {
+            box.style.display = "none";
+            box.innerHTML = "";
+            return;
+        }
+
+        if (composeGiphyGif) {
+            const safeNameGif = escapeHtml(composeGiphyGif.title || "Giphy GIF");
+            const safeUrlGif = escapeHtml(composeGiphyGif.preview_url || composeGiphyGif.gif_url || "");
+            box.style.display = "block";
+            box.innerHTML = `
+                <img class="attach-thumb" src="${safeUrlGif}" alt="${safeNameGif}" loading="lazy">
+                <div class="attach-file-chip" style="margin-top:8px;"><i class="far fa-image"></i> ${safeNameGif}</div>
+                <button type="button" class="attach-remove" onclick="clearAttachment()">Eki kaldir</button>
+            `;
+            return;
+        }
+
+        const safeName = String(composeAttachment.name || "Ek")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;");
+
+        if (composeAttachmentKind === "photo" || composeAttachmentKind === "gif") {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                box.style.display = "block";
+                box.innerHTML = `
+                    <img class="attach-thumb" src="${evt.target.result || ""}" alt="${safeName}">
+                    <div class="attach-file-chip" style="margin-top:8px;"><i class="far fa-image"></i> ${safeName}</div>
+                    <button type="button" class="attach-remove" onclick="clearAttachment()">Eki kaldir</button>
+                `;
+            };
+            reader.readAsDataURL(composeAttachment);
+            return;
+        }
+
+        box.style.display = "block";
+        box.innerHTML = `
+            <div class="attach-file-chip"><i class="far fa-file"></i> ${safeName}</div>
+            <button type="button" class="attach-remove" onclick="clearAttachment()">Eki kaldir</button>
+        `;
+    }
+
+    function pickAttachment(kind, input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const ext = fileExtension(file.name);
+        let allowed = false;
+        if (kind === "photo") allowed = photoExt.has(ext);
+        if (kind === "gif") allowed = gifExt.has(ext);
+        if (kind === "file") allowed = fileExt.has(ext);
+
+        const statusEl = document.getElementById("composeStatus");
+        if (!allowed) {
+            if (statusEl) statusEl.innerText = "Sadece fotograf, GIF ve dosya turleri destekleniyor.";
+            input.value = "";
+            return;
+        }
+
+        composeAttachment = file;
+        composeAttachmentKind = kind;
+        composeGiphyGif = null;
+        if (statusEl) statusEl.innerText = `${kind === "photo" ? "Fotograf" : kind === "gif" ? "GIF" : "Dosya"} eklendi: ${file.name}`;
+        renderComposeAttachmentPreview();
+    }
+
+    async function loadGifFavorites() {
+        const resp = await fetch("/api/giphy/favorites?limit=40");
+        const data = await resp.json().catch(() => ({}));
+        giphyPickerState.favorites = Array.isArray(data.items)
+            ? data.items.map(normalizeGifItem).filter(Boolean)
+            : [];
+        renderComposeGifQuickFavorites();
+        renderGifPickerContent();
+    }
+
+    function isGifFavorited(gifId) {
+        return giphyPickerState.favorites.some((f) => f.gif_id === gifId);
+    }
+
+    function setGifPickerTab(tab) {
+        giphyPickerState.tab = tab === "favorites" ? "favorites" : "search";
+        const tSearch = document.getElementById("gifTabSearch");
+        const tFav = document.getElementById("gifTabFav");
+        if (tSearch) tSearch.classList.toggle("active", giphyPickerState.tab === "search");
+        if (tFav) tFav.classList.toggle("active", giphyPickerState.tab === "favorites");
+        renderGifPickerContent();
+    }
+
+    function openGifPicker(target) {
+        giphyPickerState.target = target || { scope: "post" };
+        giphyPickerState.open = true;
+        const modal = document.getElementById("gifPickerModal");
+        if (modal) {
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+        }
+        setGifPickerTab(giphyPickerState.tab || "search");
+        loadGifFavorites().catch(() => {});
+        if (!Array.isArray(giphyPickerState.items) || giphyPickerState.items.length === 0) {
+            searchGifPicker("", true).catch(() => {});
+        }
+    }
+
+    function closeGifPicker() {
+        giphyPickerState.open = false;
+        const modal = document.getElementById("gifPickerModal");
+        if (modal) {
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+    }
+
+    function renderComposeGifQuickFavorites() {
+        const wrap = document.getElementById("composeGifQuickWrap");
+        const row = document.getElementById("composeGifQuickRow");
+        if (!wrap || !row) return;
+        const favs = Array.isArray(giphyPickerState.favorites) ? giphyPickerState.favorites.slice(0, 12) : [];
+        if (favs.length === 0) {
+            wrap.style.display = "none";
+            row.innerHTML = "";
+            return;
+        }
+        wrap.style.display = "block";
+        row.innerHTML = favs.map((gif) => {
+            const safeTitle = escapeHtml(gif.title || "GIF");
+            const safeUrl = escapeHtml(gif.preview_url || gif.gif_url || "");
+            const token = encodeGifToken(gif);
+            return `
+                <button type="button" class="gif-quick-item" title="${safeTitle}" onclick="applyGifSelectionFromToken('post', '${token}')">
+                    <img src="${safeUrl}" alt="${safeTitle}" loading="lazy">
+                </button>
+            `;
+        }).join("");
+    }
+
+    async function searchGifPicker(rawQuery = null, forceTrending = false) {
+        const input = document.getElementById("gifSearchInput");
+        const q = rawQuery === null ? String(input.value || "").trim() : String(rawQuery || "").trim();
+        giphyPickerState.query = q;
+        giphyPickerState.loading = true;
+        renderGifPickerContent();
+        const params = new URLSearchParams();
+        params.set("limit", "24");
+        if (!forceTrending && q) params.set("q", q);
+        const resp = await fetch(`/api/giphy/search?${params.toString()}`);
+        const data = await resp.json().catch(() => ({}));
+        giphyPickerState.loading = false;
+        giphyPickerState.items = Array.isArray(data.items)
+            ? data.items.map(normalizeGifItem).filter(Boolean)
+            : [];
+        renderGifPickerContent(data.message || "");
+    }
+
+    function gifTargetMatchesPost(target) {
+        return !target || target.scope === "post";
+    }
+
+    function encodeGifToken(gif) {
+        try {
+            return encodeURIComponent(JSON.stringify(gif || {}));
+        } catch (_) {
+            return "";
+        }
+    }
+
+    function decodeGifToken(token) {
+        try {
+            return normalizeGifItem(JSON.parse(decodeURIComponent(String(token || ""))));
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function applyGifSelectionFromToken(scope, token) {
+        const gif = decodeGifToken(token);
+        if (!gif) return;
+        applyGifSelection(scope, gif);
+    }
+
+    function toggleGifFavoriteFromToken(token) {
+        const gif = decodeGifToken(token);
+        if (!gif) return;
+        toggleGifFavorite(gif);
+    }
+
+    function applyGifSelection(scope, gifRaw) {
+        const gif = normalizeGifItem(gifRaw);
+        if (!gif) return;
+        if (scope === "post") {
+            composeAttachment = null;
+            composeAttachmentKind = "";
+            composeGiphyGif = gif;
+            ["photoInput", "gifInput", "fileInput"].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = "";
+            });
+            renderComposeAttachmentPreview();
+            const statusEl = document.getElementById("composeStatus");
+            if (statusEl) statusEl.innerText = `GIF secildi: ${gif.title}`;
+            closeGifPicker();
+            return;
+        }
+        const target = giphyPickerState.target || {};
+        const pid = Number(target.postId || 0);
+        const cid = Number(target.parentCommentId || 0);
+        if (!pid) return;
+        setCommentAttachment(pid, cid, { source: "giphy", kind: "gif", gif });
+        renderCommentAttachmentPreview(pid, cid);
+        closeGifPicker();
+    }
+
+    async function toggleGifFavorite(gifRaw) {
+        const gif = normalizeGifItem(gifRaw);
+        if (!gif) return;
+        const exists = isGifFavorited(gif.gif_id);
+        if (exists) {
+            await fetch(`/api/giphy/favorite/${encodeURIComponent(gif.gif_id)}`, { method: "DELETE" });
+        } else {
+            await fetch("/api/giphy/favorite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(gif)
+            });
+        }
+        await loadGifFavorites();
+    }
+
+    function renderGifPickerContent(message = "") {
+        const grid = document.getElementById("gifPickerGrid");
+        const empty = document.getElementById("gifPickerEmpty");
+        if (!grid || !empty) return;
+
+        const items = giphyPickerState.tab === "favorites"
+            ? giphyPickerState.favorites
+            : giphyPickerState.items;
+
+        if (giphyPickerState.loading) {
+            grid.innerHTML = "";
+            empty.style.display = "block";
+            empty.innerText = "GIF yukleniyor...";
+            return;
+        }
+        if (!items || items.length === 0) {
+            grid.innerHTML = "";
+            empty.style.display = "block";
+            empty.innerText = message || (giphyPickerState.tab === "favorites"
+                ? "Favori GIF yok. Kesfet sekmesinden ekleyebilirsin."
+                : "Sonuc bulunamadi.");
+            return;
+        }
+        empty.style.display = "none";
+        grid.innerHTML = items.map((gif) => {
+            const safeTitle = escapeHtml(gif.title || "GIF");
+            const safePreview = escapeHtml(gif.preview_url || gif.gif_url || "");
+            const activeClass = isGifFavorited(gif.gif_id) ? "active" : "";
+            const token = encodeGifToken(gif);
+            return `
+                <div class="gif-item">
+                    <img class="gif-item-thumb" src="${safePreview}" alt="${safeTitle}" loading="lazy">
+                    <div class="gif-item-actions">
+                        <button type="button" class="gif-action" onclick="applyGifSelectionFromToken('${gifTargetMatchesPost(giphyPickerState.target) ? "post" : "comment"}', '${token}')">Sec</button>
+                        <button type="button" class="gif-action favorite ${activeClass}" onclick="toggleGifFavoriteFromToken('${token}')">${activeClass ? "Favoride" : "Favori"}</button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    // Arama Fonksiyonu
+    function handleSearch(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            activeSearch = (e.target.value || "").trim();
+            loadFeed();
+        }, 350);
+    }
+
+    // Feed Yukle
+    async function loadFeed(query = activeSearch) {
+        const params = new URLSearchParams();
+        params.set("feed", activeFeedMode);
+        if (query) params.set("q", query);
+        const url = `/api/forum/feed${params.toString()}`;
+
+        const resp = await fetch(url);
+        const data = await resp.json();
+        const feed = document.getElementById("feed");
+        if (data.feed_mode === "following" || data.feed_mode === "for_you") {
+            activeFeedMode = data.feed_mode;
+        }
+        renderFeedTabs();
+
+        if (data.posts.length === 0) {
+            feed.innerHTML = `<div class="feed-empty">Sonuc bulunamadi. Ilk fikri sen filizlendir!</div>`;
+            return;
+        }
+        data.posts.forEach((p) => {
+            commentsCacheByPost[p.id] = Array.isArray(p.preview_comments) ? p.preview_comments : [];
+        });
+
+        feed.innerHTML = data.posts.map(p => `
+            <div class="post-card">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#eee; background-image:url('${p.author.avatar_url || ''}'); background-size:cover; background-position:center;"></div>
+                    <div>
+                        <a href="/dashboard/social/user/${p.author.id}" 
+                           class="author-link"
+                           onmouseenter="showCard(event, ${p.author.id})"
+                           onmouseleave="hideCard(event)">
+                           ${p.author.display_name || p.author.nickname}
+                        </a>
+                        <div class="post-meta">
+                            ${new Date(p.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin:15px 0 8px; color:#1e293b;">${p.title}</h3>
+                <div class="post-content">${p.content}</div>
+                ${p.attachment && p.attachment.url ? (
+                    (p.attachment.kind === "image" || p.attachment.kind === "gif")
+                        ? `<div class="post-attachment"><img src="${p.attachment.url}" alt="${p.attachment.name || "Ek"}" loading="lazy"></div>`
+                        : `<div class="post-attachment-file"><i class="far fa-file"></i><a href="${p.attachment.url}" target="_blank" rel="noopener" download>${p.attachment.name || "Dosya"}</a></div>`
+                ) : ""}
+
+                <div class="post-actions">
+                    <button class="action-btn ${p.liked_by_me ? 'active' : ''}" onclick="toggleLike(${p.id}, this)">
+                        <i class="fas fa-heart"></i> <span class="like-count">${p.stats.likes}</span>
+                    </button>
+                    <button class="action-btn" onclick="toggleComments(${p.id})">
+                        <i class="fas fa-comment-alt"></i> <span class="comment-count" data-post-id="${p.id}">${p.stats.comments}</span> Yorum
+                    </button>
+                    ${p.can_delete ? `
+                        <button class="action-btn delete-btn" onclick="deletePost(${p.id})">
+                            <i class="fas fa-trash"></i> Sil
+                        </button>
+                    ` : ""}
+                </div>
+
+                <div id="comments-${p.id}" class="post-comments">
+                    <div id="list-${p.id}">
+                        ${renderCommentList(p.preview_comments, p.id)}
+                    </div>
+                    <div class="comment-compose">
+                        <input id="input-${p.id}" class="comment-input" type="text" placeholder="Yorum yaz..."
+                               onkeydown="if(event.key==='Enter'){event.preventDefault(); sendComment(${p.id});}">
+                        <button class="comment-send-btn" onclick="sendComment(${p.id})"><i class="fas fa-leaf"></i></button>
+                    </div>
+                    <div class="comment-compose-tools">
+                        <button type="button" class="comment-tool-btn" onclick="triggerCommentAttach(${p.id}, 0, 'photo')" title="Fotograf ekle"><i class="far fa-image"></i></button>
+                        <button type="button" class="comment-tool-btn" onclick="triggerCommentAttach(${p.id}, 0, 'gif')" title="GIF ekle">GIF</button>
+                        <button type="button" class="comment-tool-btn" onclick="triggerCommentAttach(${p.id}, 0, 'file')" title="Dosya ekle"><i class="far fa-file"></i></button>
+                    </div>
+                    <div id="comment-attach-preview-${p.id}" class="comment-attach-preview"></div>
+                    <input type="file" id="comment-photo-${p.id}" accept=".png,.jpg,.jpeg,.webp" style="display:none;" onchange="pickCommentAttachment(${p.id}, 0, 'photo', this)">
+                    <input type="file" id="comment-gif-${p.id}" accept=".gif" style="display:none;" onchange="pickCommentAttachment(${p.id}, 0, 'gif', this)">
+                    <input type="file" id="comment-file-${p.id}" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.zip,.rar,.7z" style="display:none;" onchange="pickCommentAttachment(${p.id}, 0, 'file', this)">
+                </div>
+            </div>
+        `).join("");
+    }
+
+    function buildCommentTree(comments) {
+        const nodesById = {};
+        const roots = [];
+
+        (comments || []).forEach((c) => {
+            const id = Number(c.id);
+            nodesById[id] = { ...c, children: [] };
+            commentById[id] = c;
+        });
+
+        (comments || []).forEach((c) => {
+            const node = nodesById[Number(c.id)];
+            const parentId = Number(c.reply_to_id || 0);
+            if (parentId && nodesById[parentId]) {
+                nodesById[parentId].children.push(node);
+            } else {
+                roots.push(node);
+            }
+        });
+
+        return roots;
+    }
+
+    function renderCommentNode(node, postId, depth = 0) {
+        const authorName = escapeHtml(node.author.display_name || node.author.nickname || node.author.username || "Kullanici");
+        const safeContent = escapeHtml(node.content || "");
+        const attachmentHtml = renderCommentAttachment(node.attachment);
+        const childCount = Array.isArray(node.children) ? node.children.length : 0;
+        const expanded = isRepliesExpanded(postId, node.id);
+        const replyComposerOpen = isReplyComposerOpen(postId, node.id);
+        const replyTo = node.reply_to
+            ? `<div class="comment-reply-to">@${escapeHtml(node.reply_to.author.display_name || node.reply_to.author.nickname || node.reply_to.author.username || "Kullanici")} yorumuna yanıt</div>`
+            : "";
+        const children = (childCount > 0 && expanded)
+            ? `<div class="comment-children">${node.children.map((child) => renderCommentNode(child, postId, depth + 1)).join("")}</div>`
+            : "";
+        const replyEditor = replyComposerOpen
+            ? `<div class="comment-reply-editor">
+                   <div class="comment-reply-hint">@${authorName} yorumuna yanıt yazıyorsun</div>
+                   <div class="comment-reply-row">
+                       <input id="reply-input-${postId}-${node.id}" class="comment-reply-input" type="text" placeholder="Yanıtını yaz..."
+                              onkeydown="if(event.key==='Enter'){event.preventDefault(); sendReply(${postId}, ${node.id});}">
+                       <button class="comment-reply-send" onclick="sendReply(${postId}, ${node.id})"><i class="fas fa-paper-plane"></i></button>
+                   </div>
+                   <div class="comment-reply-tools">
+                       <button type="button" class="comment-tool-btn" onclick="triggerCommentAttach(${postId}, ${node.id}, 'photo')" title="Fotograf ekle"><i class="far fa-image"></i></button>
+                       <button type="button" class="comment-tool-btn" onclick="triggerCommentAttach(${postId}, ${node.id}, 'gif')" title="GIF ekle">GIF</button>
+                       <button type="button" class="comment-tool-btn" onclick="triggerCommentAttach(${postId}, ${node.id}, 'file')" title="Dosya ekle"><i class="far fa-file"></i></button>
+                   </div>
+                   <div id="reply-attach-preview-${postId}-${node.id}" class="comment-attach-preview"></div>
+                   <input type="file" id="reply-photo-${postId}-${node.id}" accept=".png,.jpg,.jpeg,.webp" style="display:none;" onchange="pickCommentAttachment(${postId}, ${node.id}, 'photo', this)">
+                   <input type="file" id="reply-gif-${postId}-${node.id}" accept=".gif" style="display:none;" onchange="pickCommentAttachment(${postId}, ${node.id}, 'gif', this)">
+                   <input type="file" id="reply-file-${postId}-${node.id}" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.zip,.rar,.7z" style="display:none;" onchange="pickCommentAttachment(${postId}, ${node.id}, 'file', this)">
+               </div>`
+            : "";
+        const menu = (node.can_edit || node.can_delete)
+            ? `<details class="comment-menu">
+                   <summary title="Yorum menusu"><i class="fas fa-ellipsis-h"></i></summary>
+                   <div class="comment-menu-panel">
+                       ${node.can_edit ? `<button type="button" class="comment-menu-item" onclick="editComment(${postId}, ${node.id}, this)">Düzenle</button>` : ""}
+                       ${node.can_delete ? `<button type="button" class="comment-menu-item danger" onclick="deleteComment(${postId}, ${node.id}, this)">Sil</button>` : ""}
+                   </div>
+               </details>`
+            : "";
+
+        return `
+            <div class="comment-node ${depth > 0 ? "is-reply" : ""}">
+                <div class="comment-item ${depth > 0 ? "comment-item-reply" : ""}">
+                    <div class="comment-head">
+                        <a href="/dashboard/social/user/${node.author.id}" class="comment-author">${authorName}</a>
+                        <div class="comment-head-right">
+                            <span>${new Date(node.created_at).toLocaleDateString()}</span>
+                            ${menu}
+                        </div>
+                    </div>
+                    ${replyTo}
+                    <div class="comment-text">${safeContent}</div>
+                    ${attachmentHtml}
+                    <div class="comment-actions">
+                        <button type="button" class="comment-inline-link" onclick="toggleReplyComposer(${postId}, ${node.id})">${replyComposerOpen ? "Yanıtlamayı kapat" : "Yanıtla"}</button>
+                        ${childCount > 0 ? `<button type="button" class="comment-inline-link" onclick="toggleReplies(${postId}, ${node.id})">${expanded ? `Yorumları gizle (${childCount})` : `Yorumları gör (${childCount})`}</button>` : ""}
+                    </div>
+                    ${replyEditor}
+                </div>
+                ${children}
+            </div>
+        `;
+    }
+
+    function renderCommentList(comments, postId) {
+        const tree = buildCommentTree(comments);
+        return tree.map((node) => renderCommentNode(node, postId, 0)).join("");
+    }
+
+    function appendGiphyFormData(fd, gif) {
+        const item = normalizeGifItem(gif);
+        if (!item) return;
+        fd.append("giphy_id", item.gif_id);
+        fd.append("giphy_url", item.gif_url);
+        fd.append("giphy_preview_url", item.preview_url || item.gif_url);
+        fd.append("giphy_title", item.title || `Giphy GIF ${item.gif_id}`);
+    }
+
+    async function sendPost() {
+        const title = (document.getElementById("postTitle").value || "").trim();
+        const content = (document.getElementById("postContent").value || "").trim();
+        const statusEl = document.getElementById("composeStatus");
+
+        if (!content && !composeAttachment && !composeGiphyGif) {
+            if (statusEl) statusEl.innerText = "Yazi veya ek dosya olmadan paylasim yapamazsin.";
+            return;
+        }
+
+        const fd = new FormData();
+        fd.append("title", title);
+        fd.append("content", content);
+        fd.append("category", "genel");
+        if (composeAttachment) fd.append("attachment", composeAttachment);
+        if (composeGiphyGif) appendGiphyFormData(fd, composeGiphyGif);
+
+        const resp = await fetch("/api/forum/post", {
+            method: "POST",
+            body: fd
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+            if (statusEl) statusEl.innerText = data.message || "Paylasim gonderilemedi.";
+            return;
+        }
+
+        document.getElementById("postTitle").value = "";
+        document.getElementById("postContent").value = "";
+        clearAttachment();
+        if (statusEl) statusEl.innerText = data.message || "Paylasim gonderildi.";
+        await loadFeed();
+    }
+
+    function toggleComments(postId) {
+        const pid = Number(postId);
+        const el = document.getElementById(`comments-${pid}`);
+        if (!el) return;
+        el.style.display = el.style.display === "block" ? "none" : "block";
+        if (el.style.display === 'block') {
+            renderCommentAttachmentPreview(pid, 0);
+            loadComments(pid);
+        }
+    }
+
+    function renderCommentsFromCache(postId) {
+        const list = document.getElementById(`list-${postId}`);
+        if (!list) return;
+        const comments = Array.isArray(commentsCacheByPost[postId]) ? commentsCacheByPost[postId] : [];
+        list.innerHTML = renderCommentList(comments, postId);
+        document.querySelectorAll(`.comment-count[data-post-id="${postId}"]`).forEach((el) => {
+            el.innerText = String(comments.length);
+        });
+    }
+
+    async function loadComments(postId) {
+        const resp = await fetch(`/api/forum/post/${postId}/comments`);
+        const data = await resp.json();
+        commentsCacheByPost[postId] = Array.isArray(data.comments) ? data.comments : [];
+        renderCommentsFromCache(postId);
+    }
+
+    async function sendComment(postId) {
+        const pid = Number(postId);
+        const input = document.getElementById(`input-${pid}`);
+        const content = (input.value || "").trim();
+        const attachment = getCommentAttachment(pid, 0);
+        const hasGiphy = !!(attachment && attachment.source === "giphy" && attachment.gif);
+        if (!content && !(attachment && attachment.file) && !hasGiphy) return;
+
+        const fd = new FormData();
+        fd.append("content", content);
+        if (attachment && attachment.file) fd.append("attachment", attachment.file);
+        if (hasGiphy) appendGiphyFormData(fd, attachment.gif);
+
+        const resp = await fetch(`/api/forum/post/${pid}/comment`, {
+            method: "POST",
+            body: fd
+        });
+        if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            alert(data.message || "Yorum gonderilemedi.");
+            return;
+        }
+        if (input) input.value = "";
+        clearCommentAttachment(pid, 0);
+        clearReplyComposer(pid);
+        loadComments(pid);
+    }
+
+    async function sendReply(postId, parentCommentId) {
+        const pid = Number(postId);
+        const cid = Number(parentCommentId);
+        const input = document.getElementById(`reply-input-${pid}-${cid}`);
+        const content = (input.value || "").trim();
+        const attachment = getCommentAttachment(pid, cid);
+        const hasGiphy = !!(attachment && attachment.source === "giphy" && attachment.gif);
+        if (!content && !(attachment && attachment.file) && !hasGiphy) return;
+
+        const fd = new FormData();
+        fd.append("content", content);
+        fd.append("reply_to_id", String(cid));
+        if (attachment && attachment.file) fd.append("attachment", attachment.file);
+        if (hasGiphy) appendGiphyFormData(fd, attachment.gif);
+
+        const resp = await fetch(`/api/forum/post/${pid}/comment`, {
+            method: "POST",
+            body: fd
+        });
+        if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            alert(data.message || "Yanit gonderilemedi.");
+            return;
+        }
+        clearCommentAttachment(pid, cid);
+        delete activeReplyByPost[pid];
+        expandedRepliesByComment[commentStateKey(pid, cid)] = true;
+        loadComments(pid);
+    }
+
+    function closeCommentMenu(triggerEl) {
+        const menu = triggerEl.closest("details.comment-menu");
+        if (menu) menu.open = false;
+    }
+
+    async function editComment(postId, commentId, triggerEl) {
+        closeCommentMenu(triggerEl);
+        const c = commentById[Number(commentId)];
+        if (!c) return;
+        const edited = prompt("Yorumu duzenle", c.content || "");
+        if (edited === null) return;
+        const content = String(edited).trim();
+        if (!content) {
+            alert("Yorum bos olamaz.");
+            return;
+        }
+
+        const resp = await fetch(`/api/forum/comment/${commentId}`, {
+            method: "PUT",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ content })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            alert(data.message || "Yorum duzenlenemedi.");
+            return;
+        }
+        loadComments(postId);
+    }
+
+    async function deleteComment(postId, commentId, triggerEl = null) {
+        closeCommentMenu(triggerEl);
+        if (!confirm("Bu yorumu silmek istiyor musun")) return;
+        const resp = await fetch(`/api/forum/comment/${commentId}`, { method: "DELETE" });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            alert(data.message || "Yorum silinemedi.");
+            return;
+        }
+        if (isReplyComposerOpen(postId, commentId)) {
+            delete activeReplyByPost[Number(postId)];
+        }
+        delete expandedRepliesByComment[commentStateKey(postId, commentId)];
+        delete commentById[Number(commentId)];
+        loadComments(postId);
+    }
+
+    async function toggleLike(postId, btn) {
+        const resp = await fetch(`/api/forum/post/${postId}/like`, {method: "POST"});
+        const data = await resp.json();
+        const countSpan = btn.querySelector(".like-count");
+        countSpan.innerText = data.likes;
+        btn.classList.toggle("active", !!data.liked);
+    }
+
+    async function deletePost(postId) {
+        if (!confirm("Bu gonderiyi silmek istiyor musun")) return;
+        const resp = await fetch(`/api/forum/post/${postId}`, { method: "DELETE" });
+        const data = await resp.json();
+        if (!resp.ok) {
+            alert(data.message || "Gonderi silinemedi.");
+            return;
+        }
+        loadFeed();
+    }
+
+    // --- KART MANTIĞI ---
+    let cardCache = {};
+    const card = document.getElementById("hoverCard");
+    let timer;
+
+    async function showCard(e, userId) {
+        clearTimeout(timer);
+        const rect = e.target.getBoundingClientRect();
+        card.style.left = (rect.left) + "px";
+        card.style.top = (rect.bottom + 10) + "px";
+        card.style.display = "block";
+
+        if(!cardCache[userId]) {
+            document.getElementById("hcName").innerText = "Yükleniyor...";
+            const resp = await fetch(`/api/social/user/${userId}`);
+            cardCache[userId] = await resp.json();
+        }
+
+        const u = cardCache[userId];
+        const stats = u.stats || {};
+        document.getElementById("hcName").innerText = u.display_name || u.nickname || u.username;
+        document.getElementById("hcUser").innerText = "@" + u.username;
+        document.getElementById("hcBadge").innerText = u.badge.name;
+        document.getElementById("hcPosts").innerText = Number(stats.posts || 0);
+        document.getElementById("hcScore").innerText = Number(stats.score || 0);
+        document.getElementById("hcCarbon").innerText = u.carbon_score;
+        document.getElementById("hcProfile").href = `/dashboard/social/user/${u.id}`;
+
+        const head = document.getElementById("hcHeader");
+        const av = document.getElementById("hcAvatar");
+        
+        if(u.preview_media_url) head.style.backgroundImage = `url('${u.preview_media_url}')`;
+        else head.style.backgroundImage = "linear-gradient(to right, #0f172a, #334155)";
+
+        if(u.avatar_url) av.style.backgroundImage = `url('${u.avatar_url}')`;
+        else av.style.backgroundColor = "#475569";
+    }
+
+    function isHoverCardTarget(node) {
+        return !!(node && (node === card || card.contains(node)));
+    }
+
+    function hideCard(e) {
+        if (isHoverCardTarget(e.relatedTarget)) return;
+        timer = setTimeout(() => { card.style.display = "none"; }, 300);
+    }
+
+    card.addEventListener("mouseenter", () => clearTimeout(timer));
+    card.addEventListener("mouseleave", (e) => hideCard(e));
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && giphyPickerState.open) closeGifPicker();
+    });
+
+    function openSearchScreen() {
+        window.location.href = "/dashboard/social/search";
+    }
+
+    async function bootForum() {
+        renderFeedTabs();
+        await loadGifFavorites().catch(() => {});
+        await loadFeed();
+    }
+
+    bootForum();
+</script>
+{% endblock %}
